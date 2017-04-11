@@ -29,6 +29,12 @@
   	<defaultGoal>package</defaultGoal>
     <finalName>WesterosCraftCore</finalName>
     <sourceDirectory>src</sourceDirectory>
+    <resources>
+        <resource>
+            <targetPath>./assets/westeroscraftcore</targetPath>
+            <directory>${basedir}/src/resources/</directory>
+        </resource>
+    </resources>
     <plugins>
       <plugin>
         <artifactId>maven-compiler-plugin</artifactId>

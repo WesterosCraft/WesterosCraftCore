@@ -14,13 +14,18 @@ import org.spongepowered.api.data.Transaction;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.block.ChangeBlockEvent;
+import org.spongepowered.api.event.game.GameReloadEvent;
 import org.spongepowered.api.event.game.state.GamePreInitializationEvent;
+import org.spongepowered.api.event.message.MessageChannelEvent;
+import org.spongepowered.api.event.network.ClientConnectionEvent;
 import org.spongepowered.api.plugin.Plugin;
 import org.spongepowered.api.plugin.PluginContainer;
 import org.spongepowered.api.text.Text;
+import org.spongepowered.api.text.format.TextColors;
 
 import com.google.inject.Inject;
 import com.westeroscraft.westeroscraftcore.commands.HelloWorldCommand;
+import com.westeroscraft.westeroscraftcore.listeners.ResponseListener;
 
 @Plugin(id = "westeroscraftcore", 
 		name = "WesterosCraftCore",
@@ -31,15 +36,33 @@ public class WesterosCraftCore {
 
 	@Inject private Logger logger;
 	@Inject private PluginContainer plugin;
-	@Inject @ConfigDir(sharedRoot = false) private File config;
+	@Inject @ConfigDir(sharedRoot = false) private File configDir;
 	
 	public Logger getLogger(){
 		return logger;
 	}
 	
+	public File getConfigDirectory(){
+		return configDir;
+	}
+	
+	public PluginContainer getPlugin(){
+		return plugin;
+	}
+	
+	/**
+	 * 
+	 * All initializations for the plugin should be done here.
+	 * 
+	 * @param e GamePreInitializationEvent dispatched by Sponge.
+	 */
 	@Listener
 	public void onGamePreInitialization(GamePreInitializationEvent e){
 		getLogger().info("Enabling " + plugin.getName() + " version " + plugin.getVersion().get() + ".");
+		
+		ResponseListener rl = new ResponseListener(this);
+		
+		Sponge.getEventManager().registerListener(this, MessageChannelEvent.Chat.class, rl);
 		
 		//Testing command
 		Sponge.getCommandManager().register(this, CommandSpec.builder()
@@ -48,7 +71,6 @@ public class WesterosCraftCore {
 				.executor(new HelloWorldCommand())
 				.build(), Arrays.asList("hello"));
 	}
-	
 	
 	/**
 	 * Sponge Implementation of Hotfix1.
@@ -60,23 +82,35 @@ public class WesterosCraftCore {
 	 * @param e ChangeBlockEvent.Break dispatched by Sponge.
 	 */
 	@Listener
-	public void onHandInteract(ChangeBlockEvent.Break e){
-		System.out.println("Called");
-		System.out.println(e.getTransactions());
+	public void blockFirePunch(ChangeBlockEvent.Break e){
 		for(Transaction<BlockSnapshot> t : e.getTransactions()){
 			if(t.getOriginal().getState().getType().equals(BlockTypes.FIRE)){
-				System.out.println("is fire");
 				Optional<Player> playerOpt = e.getCause().first(Player.class);
 				if(playerOpt.isPresent()){
-					System.out.println("is player");
 					Player p = playerOpt.get();
 					if(!p.hasPermission(plugin.getId() + ".firepunch")){
-						System.out.println("Should cancel.");
 						e.setCancelled(true);
 					}
 				}
 			}
 		}
+	}
+	
+	@Listener
+	public void onPlayerJoin(ClientConnectionEvent.Join e){
+		e.getTargetEntity().sendMessage(Text.of(TextColors.RED, "Welcome to Westeroscraft! Visit /warps for a list of warps!"));
+	}
+	
+	/**
+	 * 
+	 * Any and all reload tasks will be called here if the command
+	 * <code>/sponge plugins reload</code> is run.
+	 * 
+	 * @param e GameReloadEvent dispatched by Sponge.
+	 */
+	@Listener
+	public void onReload(GameReloadEvent e){
+		ResponseListener.loadResponses(this);
 	}
 }
 	
