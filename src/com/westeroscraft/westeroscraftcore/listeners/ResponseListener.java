@@ -16,7 +16,9 @@ import org.spongepowered.api.event.EventListener;
 import org.spongepowered.api.event.message.MessageChannelEvent;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.channel.MessageReceiver;
+import org.spongepowered.api.text.format.TextColors;
 
+import com.westeroscraft.westeroscraftcore.MessageUtil;
 import com.westeroscraft.westeroscraftcore.WesterosCraftCore;
 
 public class ResponseListener implements EventListener<MessageChannelEvent.Chat>{
@@ -95,7 +97,7 @@ public class ResponseListener implements EventListener<MessageChannelEvent.Chat>
 			if(senderOpt.isPresent()){
 				MessageReceiver sender = senderOpt.get();
 				e.setCancelled(true);
-				sender.sendMessage(Text.of(response));
+				MessageUtil.sendMessage(sender, Text.of(TextColors.RED, response));
 			}
 		}
 	}

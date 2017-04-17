@@ -8,12 +8,16 @@ import org.slf4j.Logger;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.block.BlockSnapshot;
 import org.spongepowered.api.block.BlockTypes;
+import org.spongepowered.api.command.args.GenericArguments;
+import org.spongepowered.api.command.source.CommandBlockSource;
+import org.spongepowered.api.command.source.ConsoleSource;
 import org.spongepowered.api.command.spec.CommandSpec;
 import org.spongepowered.api.config.ConfigDir;
 import org.spongepowered.api.data.Transaction;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.block.ChangeBlockEvent;
+import org.spongepowered.api.event.command.SendCommandEvent;
 import org.spongepowered.api.event.game.GameReloadEvent;
 import org.spongepowered.api.event.game.state.GamePreInitializationEvent;
 import org.spongepowered.api.event.message.MessageChannelEvent;
@@ -24,7 +28,7 @@ import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.format.TextColors;
 
 import com.google.inject.Inject;
-import com.westeroscraft.westeroscraftcore.commands.HelloWorldCommand;
+import com.westeroscraft.westeroscraftcore.commands.CommandNightvision;
 import com.westeroscraft.westeroscraftcore.listeners.ResponseListener;
 
 @Plugin(id = "westeroscraftcore", 
@@ -64,20 +68,19 @@ public class WesterosCraftCore {
 		
 		Sponge.getEventManager().registerListener(this, MessageChannelEvent.Chat.class, rl);
 		
-		//Testing command
 		Sponge.getCommandManager().register(this, CommandSpec.builder()
-				.description(Text.of("Test Command"))
-				.permission(plugin.getId() + ".helloworld")
-				.executor(new HelloWorldCommand())
-				.build(), Arrays.asList("hello"));
+				.description(Text.of("Enable or disable nightvision."))
+				.permission(plugin.getId() + ".nightvision")
+				.arguments(GenericArguments.onlyOne(GenericArguments.optionalWeak(GenericArguments.player(Text.of("player")))))
+				.executor(new CommandNightvision(this))
+				.build(), Arrays.asList("nightvision", "nv"));
 	}
 	
 	/**
 	 * Sponge Implementation of Hotfix1.
 	 * 
 	 * This method listens to block breaks and prevents fire from
-	 * being broken unless the user has the permission necessary
-	 * permission.
+	 * being broken unless the user has the necessary permission.
 	 * 
 	 * @param e ChangeBlockEvent.Break dispatched by Sponge.
 	 */
@@ -98,7 +101,7 @@ public class WesterosCraftCore {
 	
 	@Listener
 	public void onPlayerJoin(ClientConnectionEvent.Join e){
-		e.getTargetEntity().sendMessage(Text.of(TextColors.RED, "Welcome to Westeroscraft! Visit /warps for a list of warps!"));
+		MessageUtil.sendMessage(e.getTargetEntity(), Text.of(TextColors.RED, "Welcome to Westeroscraft! Visit /warps for a list of warps!"));
 	}
 	
 	/**
@@ -112,5 +115,23 @@ public class WesterosCraftCore {
 	public void onReload(GameReloadEvent e){
 		ResponseListener.loadResponses(this);
 	}
+	
+	/**
+	 * Log all command invocations to the console for security.
+	 * 
+	 * @param e SendCommandEvent dispatched by Sponge.
+	 */
+	@Listener
+	public void logCommandInvocation(SendCommandEvent e){
+        String source = "?unknown?";
+        
+        Optional<Player> pOpt;
+        if ((pOpt = e.getCause().first(Player.class)).isPresent()) source = pOpt.get().getName();
+        else if(e.getCause().first(ConsoleSource.class).isPresent()) source = "console";
+        else if(e.getCause().first(CommandBlockSource.class).isPresent()) source = "command block";
+
+        logger.info("{}: /{} {}", source, e.getCommand(), e.getArguments());
+	}
+	
 }
 	
