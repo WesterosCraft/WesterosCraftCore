@@ -43,6 +43,7 @@ public class ResponseListener implements EventListener<MessageChannelEvent.Chat>
 		else responses.clear();
 		
 		File responseFile = new File(instance.getConfigDirectory(), "responses.properties");
+		instance.getConfigDirectory().mkdirs();
 		
 		if(!responseFile.exists()){
 			Optional<Asset> asset = Sponge.getAssetManager().getAsset(instance, "responses.properties");

@@ -2,7 +2,6 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.westeroscraft</groupId>
   <artifactId>WesterosCraftCore</artifactId>
-  <version>ALPHA</version>
   <name>WesterosCraft Core</name>
   <description>Core Utility plugin for WesterosCraft written using the SpongeAPI</description>
   
@@ -54,12 +53,13 @@
   	</repository>
   </repositories>
   
+  
+  <version>0.2</version>
   <dependencies>
   	<dependency>
   		<groupId>org.spongepowered</groupId>
   		<artifactId>spongeapi</artifactId>
-  		<version>LATEST</version>
+  		<version>6.0.0</version>
   	</dependency>
   </dependencies>
-  
 </project>
