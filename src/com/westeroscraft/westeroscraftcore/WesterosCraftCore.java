@@ -19,11 +19,14 @@ import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.block.ChangeBlockEvent;
 import org.spongepowered.api.event.command.SendCommandEvent;
 import org.spongepowered.api.event.game.GameReloadEvent;
+import org.spongepowered.api.event.game.state.GamePostInitializationEvent;
 import org.spongepowered.api.event.game.state.GamePreInitializationEvent;
 import org.spongepowered.api.event.message.MessageChannelEvent;
 import org.spongepowered.api.event.network.ClientConnectionEvent;
 import org.spongepowered.api.plugin.Plugin;
 import org.spongepowered.api.plugin.PluginContainer;
+import org.spongepowered.api.service.permission.PermissionDescription;
+import org.spongepowered.api.service.permission.PermissionService;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.format.TextColors;
 
@@ -133,5 +136,15 @@ public class WesterosCraftCore {
         logger.info("{}: /{} {}", source, e.getCommand(), e.getArguments());
 	}
 	
+    @Listener
+    public void onPostInit(GamePostInitializationEvent event) {
+        Optional<PermissionService> ops = Sponge.getServiceManager().provide(PermissionService.class);
+        if (ops.isPresent()) {
+            Optional<PermissionDescription.Builder> opdb = ops.get().newDescriptionBuilder(this);
+            if (opdb.isPresent()) {
+            	opdb.get().assign(PermissionDescription.ROLE_ADMIN, true).description(Text.of("Fire punch")).id(plugin.getId() + ".firepunch").register();
+            }
+        }
+    }
 }
 	
