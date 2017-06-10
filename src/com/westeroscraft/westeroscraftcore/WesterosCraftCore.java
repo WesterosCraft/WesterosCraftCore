@@ -8,16 +8,22 @@ import org.slf4j.Logger;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.block.BlockSnapshot;
 import org.spongepowered.api.block.BlockTypes;
+import org.spongepowered.api.block.tileentity.TileEntity;
+import org.spongepowered.api.command.CommandManager;
 import org.spongepowered.api.command.args.GenericArguments;
 import org.spongepowered.api.command.source.CommandBlockSource;
 import org.spongepowered.api.command.source.ConsoleSource;
 import org.spongepowered.api.command.spec.CommandSpec;
 import org.spongepowered.api.config.ConfigDir;
 import org.spongepowered.api.data.Transaction;
+import org.spongepowered.api.data.key.Keys;
+import org.spongepowered.api.data.manipulator.mutable.tileentity.SignData;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.block.ChangeBlockEvent;
+import org.spongepowered.api.event.block.InteractBlockEvent;
 import org.spongepowered.api.event.command.SendCommandEvent;
+import org.spongepowered.api.event.filter.cause.Root;
 import org.spongepowered.api.event.game.GameReloadEvent;
 import org.spongepowered.api.event.game.state.GamePostInitializationEvent;
 import org.spongepowered.api.event.game.state.GamePreInitializationEvent;
@@ -29,6 +35,8 @@ import org.spongepowered.api.service.permission.PermissionDescription;
 import org.spongepowered.api.service.permission.PermissionService;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.format.TextColors;
+import org.spongepowered.api.world.Location;
+import org.spongepowered.api.world.World;
 
 import com.google.inject.Inject;
 import com.westeroscraft.westeroscraftcore.commands.CommandNightvision;
@@ -143,8 +151,40 @@ public class WesterosCraftCore {
             Optional<PermissionDescription.Builder> opdb = ops.get().newDescriptionBuilder(this);
             if (opdb.isPresent()) {
             	opdb.get().assign(PermissionDescription.ROLE_ADMIN, true).description(Text.of("Fire punch")).id(plugin.getId() + ".firepunch").register();
+            	opdb.get().assign(PermissionDescription.ROLE_USER, true).description(Text.of("Use [Warp] signs")).id(plugin.getId() + ".warpsign.use").register();
             }
         }
     }
+    
+    @Listener
+    public void onSignTarget(InteractBlockEvent.Secondary event, @Root Player player) {
+		Optional<Location<World>> optLocation = event.getTargetBlock().getLocation();
+		
+		if (optLocation.isPresent() && optLocation.get().getTileEntity().isPresent()) {
+			Location<World> location = optLocation.get();
+			TileEntity clickedEntity = location.getTileEntity().get();
+
+			if (event.getTargetBlock().getState().getType().equals(BlockTypes.STANDING_SIGN) || event.getTargetBlock().getState().getType().equals(BlockTypes.WALL_SIGN)) {
+				Optional<SignData> signData = clickedEntity.getOrCreate(SignData.class);
+
+				if (signData.isPresent()) {
+					SignData data = signData.get();
+					CommandManager cmdService = Sponge.getGame().getCommandManager();
+					String line0 = data.getValue(Keys.SIGN_LINES).get().get(0).toPlain();
+					String line1 = data.getValue(Keys.SIGN_LINES).get().get(1).toPlain();
+					String command = "warp " + line1;
+
+					if (line0.equalsIgnoreCase("[warp]")) {
+						if (player.hasPermission(plugin.getId() + ".warpsign.use")) {
+							cmdService.process(player, command);
+						}
+						else {
+							player.sendMessage(Text.of(TextColors.DARK_RED, "Error! ", TextColors.RED, "You do not have permission to use Warp Signs!"));
+						}
+					}
+				}
+			}
+		}
+	}
 }
 	
