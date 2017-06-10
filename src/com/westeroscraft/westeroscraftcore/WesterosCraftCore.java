@@ -152,6 +152,8 @@ public class WesterosCraftCore {
             if (opdb.isPresent()) {
             	opdb.get().assign(PermissionDescription.ROLE_ADMIN, true).description(Text.of("Fire punch")).id(plugin.getId() + ".firepunch").register();
             	opdb.get().assign(PermissionDescription.ROLE_USER, true).description(Text.of("Use [Warp] signs")).id(plugin.getId() + ".warpsign.use").register();
+            	opdb.get().assign(PermissionDescription.ROLE_USER, true).description(Text.of("Toggle nightvision.")).id(plugin.getId() + ".nightvision").register();
+            	opdb.get().assign(PermissionDescription.ROLE_ADMIN, true).description(Text.of("Toggle nightvision for others.")).id(plugin.getId() + ".nightvision.others").register();
             }
         }
     }
