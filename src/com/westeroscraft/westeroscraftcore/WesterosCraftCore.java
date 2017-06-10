@@ -174,7 +174,7 @@ public class WesterosCraftCore {
 					String line1 = data.getValue(Keys.SIGN_LINES).get().get(1).toPlain();
 					String command = "warp " + line1;
 
-					if (line0.equalsIgnoreCase("[warp]")) {
+					if (line0.indexOf("[Warp]") >= 0) {
 						if (player.hasPermission(plugin.getId() + ".warpsign.use")) {
 							cmdService.process(player, command);
 						}
