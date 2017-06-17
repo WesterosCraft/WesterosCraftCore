@@ -40,6 +40,7 @@ import org.spongepowered.api.world.World;
 
 import com.google.inject.Inject;
 import com.westeroscraft.westeroscraftcore.commands.CommandNightvision;
+import com.westeroscraft.westeroscraftcore.commands.CommandPList;
 import com.westeroscraft.westeroscraftcore.listeners.ResponseListener;
 
 @Plugin(id = "westeroscraftcore", 
@@ -85,7 +86,11 @@ public class WesterosCraftCore {
 				.arguments(GenericArguments.onlyOne(GenericArguments.optionalWeak(GenericArguments.player(Text.of("player")))))
 				.executor(new CommandNightvision(this))
 				.build(), Arrays.asList("nightvision", "nv"));
-	}
+		Sponge.getCommandManager().register(this, CommandSpec.builder()
+				.description(Text.of("Display player list, with groups."))
+				.permission(plugin.getId() + ".plist")
+				.executor(new CommandPList(this))
+				.build(), Arrays.asList("plist"));	}
 	
 	/**
 	 * Sponge Implementation of Hotfix1.
@@ -154,6 +159,7 @@ public class WesterosCraftCore {
             	opdb.get().assign(PermissionDescription.ROLE_USER, true).description(Text.of("Use [Warp] signs")).id(plugin.getId() + ".warpsign.use").register();
             	opdb.get().assign(PermissionDescription.ROLE_USER, true).description(Text.of("Toggle nightvision.")).id(plugin.getId() + ".nightvision").register();
             	opdb.get().assign(PermissionDescription.ROLE_ADMIN, true).description(Text.of("Toggle nightvision for others.")).id(plugin.getId() + ".nightvision.others").register();
+            	opdb.get().assign(PermissionDescription.ROLE_USER, true).description(Text.of("View player list with groups.")).id(plugin.getId() + ".plist").register();
             }
         }
     }
