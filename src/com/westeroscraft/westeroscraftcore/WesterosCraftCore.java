@@ -25,6 +25,8 @@ import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.block.ChangeBlockEvent;
 import org.spongepowered.api.event.block.InteractBlockEvent;
+import org.spongepowered.api.event.cause.Cause;
+import org.spongepowered.api.event.cause.NamedCause;
 import org.spongepowered.api.event.command.SendCommandEvent;
 import org.spongepowered.api.event.entity.InteractEntityEvent;
 import org.spongepowered.api.event.filter.cause.Root;
@@ -230,6 +232,20 @@ public class WesterosCraftCore {
 				event.setCancelled(true);
 			}
     	}
+    }
+    
+    @Listener
+    public void onBlockChangePre(ChangeBlockEvent.Pre event) {
+    	Cause c = event.getCause();
+    	if (c.containsNamed(NamedCause.DECAY) || c.containsNamed("LeavesDecay")) {	// Workaround for current SpongeForge vs SpongeAPI mismatch
+    		event.setCancelled(true);
+    		return;
+    	}
+    }
+    @Listener
+    public void onBlockChangeDecay(ChangeBlockEvent.Decay event) {
+    	// Cancel all decay events - seem to only be for leaves, so we're OK for now
+		event.setCancelled(true);
     }
 }
 	
