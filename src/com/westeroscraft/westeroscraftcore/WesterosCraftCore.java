@@ -2,7 +2,9 @@ package com.westeroscraft.westeroscraftcore;
 
 import java.io.File;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Optional;
+import java.util.Set;
 
 import org.slf4j.Logger;
 import org.spongepowered.api.Sponge;
@@ -36,6 +38,7 @@ import org.spongepowered.api.event.game.state.GamePreInitializationEvent;
 import org.spongepowered.api.event.item.inventory.InteractItemEvent;
 import org.spongepowered.api.event.message.MessageChannelEvent;
 import org.spongepowered.api.event.network.ClientConnectionEvent;
+import org.spongepowered.api.item.ItemType;
 import org.spongepowered.api.item.ItemTypes;
 import org.spongepowered.api.item.inventory.ItemStackSnapshot;
 import org.spongepowered.api.plugin.Plugin;
@@ -62,6 +65,46 @@ public class WesterosCraftCore {
 	@Inject private Logger logger;
 	@Inject private PluginContainer plugin;
 	@Inject @ConfigDir(sharedRoot = false) private File configDir;
+	
+	private Set<ItemType> guest_blacklist = new HashSet<ItemType>();
+	
+	public WesterosCraftCore() {
+		guest_blacklist.add(ItemTypes.ITEM_FRAME);
+		guest_blacklist.add(ItemTypes.PAINTING);
+		guest_blacklist.add(ItemTypes.WATER_BUCKET);
+		guest_blacklist.add(ItemTypes.LAVA_BUCKET);
+		guest_blacklist.add(ItemTypes.DRAGON_EGG);
+		guest_blacklist.add(ItemTypes.MONSTER_EGG);
+		guest_blacklist.add(ItemTypes.SPAWN_EGG);
+		guest_blacklist.add(ItemTypes.BOAT);
+		guest_blacklist.add(ItemTypes.MINECART);
+		guest_blacklist.add(ItemTypes.CHEST_MINECART);
+		guest_blacklist.add(ItemTypes.BLACK_SHULKER_BOX);
+		guest_blacklist.add(ItemTypes.BLUE_SHULKER_BOX);
+		guest_blacklist.add(ItemTypes.BROWN_SHULKER_BOX);
+		guest_blacklist.add(ItemTypes.CYAN_SHULKER_BOX);
+		guest_blacklist.add(ItemTypes.GRAY_SHULKER_BOX);
+		guest_blacklist.add(ItemTypes.GREEN_SHULKER_BOX);
+		guest_blacklist.add(ItemTypes.LIGHT_BLUE_SHULKER_BOX);
+		guest_blacklist.add(ItemTypes.LIME_SHULKER_BOX);
+		guest_blacklist.add(ItemTypes.MAGENTA_SHULKER_BOX);
+		guest_blacklist.add(ItemTypes.ORANGE_SHULKER_BOX);
+		guest_blacklist.add(ItemTypes.PINK_SHULKER_BOX);
+		guest_blacklist.add(ItemTypes.PURPLE_SHULKER_BOX);
+		guest_blacklist.add(ItemTypes.RED_SHULKER_BOX);
+		guest_blacklist.add(ItemTypes.SILVER_SHULKER_BOX);
+		guest_blacklist.add(ItemTypes.WHITE_SHULKER_BOX);
+		guest_blacklist.add(ItemTypes.YELLOW_SHULKER_BOX);
+		guest_blacklist.add(ItemTypes.ANVIL);
+		guest_blacklist.add(ItemTypes.ARMOR_STAND);
+		guest_blacklist.add(ItemTypes.POTION);
+		guest_blacklist.add(ItemTypes.END_CRYSTAL);
+		guest_blacklist.add(ItemTypes.ENDER_EYE);
+		guest_blacklist.add(ItemTypes.EXPERIENCE_BOTTLE);
+		guest_blacklist.add(ItemTypes.EGG);
+		guest_blacklist.add(ItemTypes.SNOWBALL);
+		guest_blacklist.add(ItemTypes.SNOW_LAYER);
+	}
 	
 	public Logger getLogger(){
 		return logger;
@@ -171,6 +214,7 @@ public class WesterosCraftCore {
             	opdb.get().assign(PermissionDescription.ROLE_USER, true).description(Text.of("View player list with groups.")).id(plugin.getId() + ".plist").register();
             	opdb.get().assign(PermissionDescription.ROLE_ADMIN, true).description(Text.of("Allow item frame changes.")).id(plugin.getId() + ".itemframe.change").register();
             	opdb.get().assign(PermissionDescription.ROLE_ADMIN, true).description(Text.of("Allow painting changes.")).id(plugin.getId() + ".painting.change").register();
+            	opdb.get().assign(PermissionDescription.ROLE_ADMIN, true).description(Text.of("Use guest blacklisted items.")).id(plugin.getId() + ".blacklist.use").register();
             }
         }
     }
@@ -219,16 +263,12 @@ public class WesterosCraftCore {
 			}
     	}
     }
+    
     @Listener
     public void onItemInteract(InteractItemEvent event, @Root Player player) {
     	ItemStackSnapshot item = event.getItemStack();
-    	if (item.getType() == ItemTypes.ITEM_FRAME) {
-			if (!player.hasPermission(plugin.getId() + ".itemframe.change")) {
-				event.setCancelled(true);
-			}
-    	}
-    	else if (item.getType() == ItemTypes.PAINTING) {
-			if (!player.hasPermission(plugin.getId() + ".painting.change")) {
+    	if (guest_blacklist.contains(item.getType())) {
+			if (!player.hasPermission(plugin.getId() + ".blacklist.use")) {
 				event.setCancelled(true);
 			}
     	}
