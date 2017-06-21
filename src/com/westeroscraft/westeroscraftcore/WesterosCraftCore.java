@@ -18,17 +18,24 @@ import org.spongepowered.api.config.ConfigDir;
 import org.spongepowered.api.data.Transaction;
 import org.spongepowered.api.data.key.Keys;
 import org.spongepowered.api.data.manipulator.mutable.tileentity.SignData;
+import org.spongepowered.api.entity.Entity;
+import org.spongepowered.api.entity.hanging.ItemFrame;
+import org.spongepowered.api.entity.hanging.Painting;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.block.ChangeBlockEvent;
 import org.spongepowered.api.event.block.InteractBlockEvent;
 import org.spongepowered.api.event.command.SendCommandEvent;
+import org.spongepowered.api.event.entity.InteractEntityEvent;
 import org.spongepowered.api.event.filter.cause.Root;
 import org.spongepowered.api.event.game.GameReloadEvent;
 import org.spongepowered.api.event.game.state.GamePostInitializationEvent;
 import org.spongepowered.api.event.game.state.GamePreInitializationEvent;
+import org.spongepowered.api.event.item.inventory.InteractItemEvent;
 import org.spongepowered.api.event.message.MessageChannelEvent;
 import org.spongepowered.api.event.network.ClientConnectionEvent;
+import org.spongepowered.api.item.ItemTypes;
+import org.spongepowered.api.item.inventory.ItemStackSnapshot;
 import org.spongepowered.api.plugin.Plugin;
 import org.spongepowered.api.plugin.PluginContainer;
 import org.spongepowered.api.service.permission.PermissionDescription;
@@ -160,6 +167,8 @@ public class WesterosCraftCore {
             	opdb.get().assign(PermissionDescription.ROLE_USER, true).description(Text.of("Toggle nightvision.")).id(plugin.getId() + ".nightvision").register();
             	opdb.get().assign(PermissionDescription.ROLE_ADMIN, true).description(Text.of("Toggle nightvision for others.")).id(plugin.getId() + ".nightvision.others").register();
             	opdb.get().assign(PermissionDescription.ROLE_USER, true).description(Text.of("View player list with groups.")).id(plugin.getId() + ".plist").register();
+            	opdb.get().assign(PermissionDescription.ROLE_ADMIN, true).description(Text.of("Allow item frame changes.")).id(plugin.getId() + ".itemframe.change").register();
+            	opdb.get().assign(PermissionDescription.ROLE_ADMIN, true).description(Text.of("Allow painting changes.")).id(plugin.getId() + ".painting.change").register();
             }
         }
     }
@@ -167,7 +176,6 @@ public class WesterosCraftCore {
     @Listener
     public void onSignTarget(InteractBlockEvent.Secondary event, @Root Player player) {
 		Optional<Location<World>> optLocation = event.getTargetBlock().getLocation();
-		
 		if (optLocation.isPresent() && optLocation.get().getTileEntity().isPresent()) {
 			Location<World> location = optLocation.get();
 			TileEntity clickedEntity = location.getTileEntity().get();
@@ -194,5 +202,34 @@ public class WesterosCraftCore {
 			}
 		}
 	}
+    @Listener
+    public void onEntityInteract(InteractEntityEvent event, @Root Player player) {
+    	// Prevent unauthorized folks from messing with item frames
+    	Entity ent = event.getTargetEntity();
+    	if (ent instanceof ItemFrame) {
+			if (!player.hasPermission(plugin.getId() + ".itemframe.change")) {
+				event.setCancelled(true);
+			}
+    	}
+    	else if (ent instanceof Painting) {
+			if (!player.hasPermission(plugin.getId() + ".painting.change")) {
+				event.setCancelled(true);
+			}
+    	}
+    }
+    @Listener
+    public void onItemInteract(InteractItemEvent event, @Root Player player) {
+    	ItemStackSnapshot item = event.getItemStack();
+    	if (item.getType() == ItemTypes.ITEM_FRAME) {
+			if (!player.hasPermission(plugin.getId() + ".itemframe.change")) {
+				event.setCancelled(true);
+			}
+    	}
+    	else if (item.getType() == ItemTypes.PAINTING) {
+			if (!player.hasPermission(plugin.getId() + ".painting.change")) {
+				event.setCancelled(true);
+			}
+    	}
+    }
 }
 	
