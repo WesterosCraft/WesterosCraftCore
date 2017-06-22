@@ -7,6 +7,7 @@ import java.util.Optional;
 import java.util.Set;
 
 import org.slf4j.Logger;
+import org.spongepowered.api.GameRegistry;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.block.BlockSnapshot;
 import org.spongepowered.api.block.BlockTypes;
@@ -35,6 +36,7 @@ import org.spongepowered.api.event.filter.cause.Root;
 import org.spongepowered.api.event.game.GameReloadEvent;
 import org.spongepowered.api.event.game.state.GamePostInitializationEvent;
 import org.spongepowered.api.event.game.state.GamePreInitializationEvent;
+import org.spongepowered.api.event.game.state.GameStartedServerEvent;
 import org.spongepowered.api.event.item.inventory.InteractItemEvent;
 import org.spongepowered.api.event.message.MessageChannelEvent;
 import org.spongepowered.api.event.network.ClientConnectionEvent;
@@ -68,7 +70,8 @@ public class WesterosCraftCore {
 	
 	private Set<ItemType> guest_blacklist = new HashSet<ItemType>();
 	
-	public WesterosCraftCore() {
+	public void initBlacklist() {
+		GameRegistry gr = Sponge.getRegistry();
 		guest_blacklist.add(ItemTypes.ITEM_FRAME);
 		guest_blacklist.add(ItemTypes.PAINTING);
 		guest_blacklist.add(ItemTypes.WATER_BUCKET);
@@ -77,6 +80,11 @@ public class WesterosCraftCore {
 		guest_blacklist.add(ItemTypes.MONSTER_EGG);
 		guest_blacklist.add(ItemTypes.SPAWN_EGG);
 		guest_blacklist.add(ItemTypes.BOAT);
+		guest_blacklist.add(ItemTypes.ACACIA_BOAT);
+		guest_blacklist.add(ItemTypes.BIRCH_BOAT);
+		guest_blacklist.add(ItemTypes.DARK_OAK_BOAT);
+		guest_blacklist.add(ItemTypes.JUNGLE_BOAT);
+		guest_blacklist.add(ItemTypes.SPRUCE_BOAT);
 		guest_blacklist.add(ItemTypes.MINECART);
 		guest_blacklist.add(ItemTypes.CHEST_MINECART);
 		guest_blacklist.add(ItemTypes.BLACK_SHULKER_BOX);
@@ -104,6 +112,10 @@ public class WesterosCraftCore {
 		guest_blacklist.add(ItemTypes.EGG);
 		guest_blacklist.add(ItemTypes.SNOWBALL);
 		guest_blacklist.add(ItemTypes.SNOW_LAYER);
+		guest_blacklist.add(gr.getType(ItemType.class, "westerosblocks:sand_layer_0").get());
+		guest_blacklist.add(gr.getType(ItemType.class, "westerosblocks:sand_layer_1").get());
+		guest_blacklist.add(gr.getType(ItemType.class, "westerosblocks:sand_layer_2").get());
+		guest_blacklist.add(gr.getType(ItemType.class, "westerosblocks:sand_layer_3").get());
 	}
 	
 	public Logger getLogger(){
@@ -142,8 +154,14 @@ public class WesterosCraftCore {
 				.description(Text.of("Display player list, with groups."))
 				.permission(plugin.getId() + ".plist")
 				.executor(new CommandPList(this))
-				.build(), Arrays.asList("plist"));	}
+				.build(), Arrays.asList("plist"));	
+	}
 	
+    @Listener
+    public void onGameStartedServer(GameStartedServerEvent e){
+		initBlacklist();
+    }
+    
 	/**
 	 * Sponge Implementation of Hotfix1.
 	 * 
