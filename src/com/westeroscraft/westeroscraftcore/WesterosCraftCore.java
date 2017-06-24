@@ -10,6 +10,7 @@ import org.slf4j.Logger;
 import org.spongepowered.api.GameRegistry;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.block.BlockSnapshot;
+import org.spongepowered.api.block.BlockType;
 import org.spongepowered.api.block.BlockTypes;
 import org.spongepowered.api.block.tileentity.TileEntity;
 import org.spongepowered.api.command.CommandManager;
@@ -25,7 +26,9 @@ import org.spongepowered.api.entity.Entity;
 import org.spongepowered.api.entity.hanging.ItemFrame;
 import org.spongepowered.api.entity.hanging.Painting;
 import org.spongepowered.api.entity.living.player.Player;
+import org.spongepowered.api.entity.living.player.User;
 import org.spongepowered.api.event.Listener;
+import org.spongepowered.api.event.Order;
 import org.spongepowered.api.event.block.ChangeBlockEvent;
 import org.spongepowered.api.event.block.InteractBlockEvent;
 import org.spongepowered.api.event.cause.Cause;
@@ -69,6 +72,7 @@ public class WesterosCraftCore {
 	@Inject @ConfigDir(sharedRoot = false) private File configDir;
 	
 	private Set<ItemType> guest_blacklist = new HashSet<ItemType>();
+	private Set<BlockType> stop_snow_form_on = new HashSet<BlockType>();
 	
 	public void initBlacklist() {
 		GameRegistry gr = Sponge.getRegistry();
@@ -116,6 +120,12 @@ public class WesterosCraftCore {
 		guest_blacklist.add(gr.getType(ItemType.class, "westerosblocks:sand_layer_1").get());
 		guest_blacklist.add(gr.getType(ItemType.class, "westerosblocks:sand_layer_2").get());
 		guest_blacklist.add(gr.getType(ItemType.class, "westerosblocks:sand_layer_3").get());
+		// Migration of current settings - switch to parameter file
+		stop_snow_form_on.add(BlockTypes.COBBLESTONE);
+		stop_snow_form_on.add(BlockTypes.GRAVEL);
+		stop_snow_form_on.add(BlockTypes.DOUBLE_STONE_SLAB);
+		stop_snow_form_on.add(BlockTypes.DOUBLE_STONE_SLAB2);
+		
 	}
 	
 	public Logger getLogger(){
@@ -304,6 +314,32 @@ public class WesterosCraftCore {
     public void onBlockChangeDecay(ChangeBlockEvent.Decay event) {
     	// Cancel all decay events - seem to only be for leaves, so we're OK for now
 		event.setCancelled(true);
+    }
+    
+    @Listener(order = Order.FIRST, beforeModifications = true)
+    public void onBlockChangePlace(ChangeBlockEvent.Place event) {
+    	User user = event.getCause().first(User.class).orElse(null);
+    	if (user != null) {	// User action?
+    		return;	// Nothing to do here yet
+    	}
+    	else {	// Else automatic placement of some sort
+	       for (Transaction<BlockSnapshot> transaction : event.getTransactions()) {
+	            BlockSnapshot block = transaction.getFinal();
+	            BlockType bt = block.getState().getType();
+	            Location<World> location = block.getLocation().orElse(null);
+	            if (location == null) {
+	                continue;
+	            }
+	            // Handle snow
+	            if (bt == BlockTypes.SNOW_LAYER) {
+            		BlockType below_bt = location.add(0, -1, 0).getBlockType();
+            		// Block type we're blocking snow formation on
+            		if ((below_bt != null) && (stop_snow_form_on.contains(below_bt))) {
+            			transaction.setValid(false);
+            		}
+	            }
+	       }
+    	}
     }
 }
 	
