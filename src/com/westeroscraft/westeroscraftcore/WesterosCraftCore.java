@@ -1,24 +1,34 @@
 package com.westeroscraft.westeroscraftcore;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.List;
+import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Set;
 
 import org.slf4j.Logger;
 import org.spongepowered.api.GameRegistry;
 import org.spongepowered.api.Sponge;
+import org.spongepowered.api.asset.Asset;
 import org.spongepowered.api.block.BlockSnapshot;
+import org.spongepowered.api.block.BlockState;
 import org.spongepowered.api.block.BlockType;
 import org.spongepowered.api.block.BlockTypes;
 import org.spongepowered.api.block.tileentity.TileEntity;
+import org.spongepowered.api.block.trait.IntegerTraits;
 import org.spongepowered.api.command.CommandManager;
 import org.spongepowered.api.command.args.GenericArguments;
 import org.spongepowered.api.command.source.CommandBlockSource;
 import org.spongepowered.api.command.source.ConsoleSource;
 import org.spongepowered.api.command.spec.CommandSpec;
 import org.spongepowered.api.config.ConfigDir;
+import org.spongepowered.api.config.DefaultConfig;
 import org.spongepowered.api.data.Transaction;
 import org.spongepowered.api.data.key.Keys;
 import org.spongepowered.api.data.manipulator.mutable.tileentity.SignData;
@@ -31,6 +41,7 @@ import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.Order;
 import org.spongepowered.api.event.block.ChangeBlockEvent;
 import org.spongepowered.api.event.block.InteractBlockEvent;
+import org.spongepowered.api.event.block.NotifyNeighborBlockEvent;
 import org.spongepowered.api.event.cause.Cause;
 import org.spongepowered.api.event.cause.NamedCause;
 import org.spongepowered.api.event.command.SendCommandEvent;
@@ -52,294 +63,390 @@ import org.spongepowered.api.service.permission.PermissionDescription;
 import org.spongepowered.api.service.permission.PermissionService;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.format.TextColors;
+import org.spongepowered.api.util.Direction;
 import org.spongepowered.api.world.Location;
 import org.spongepowered.api.world.World;
 
+import com.google.common.reflect.TypeToken;
 import com.google.inject.Inject;
 import com.westeroscraft.westeroscraftcore.commands.CommandNightvision;
 import com.westeroscraft.westeroscraftcore.commands.CommandPList;
 import com.westeroscraft.westeroscraftcore.listeners.ResponseListener;
 
+import ninja.leaping.configurate.ConfigurationOptions;
+import ninja.leaping.configurate.commented.CommentedConfigurationNode;
+import ninja.leaping.configurate.loader.ConfigurationLoader;
+
 @Plugin(id = "westeroscraftcore", 
-		name = "WesterosCraftCore",
-		version = "1.0", 
-		description = "Core Utility plugin for WesterosCraft", 
-		authors = {"TheKraken7", "mikeprimm", "Will Blew"})
+name = "WesterosCraftCore",
+version = "1.0", 
+description = "Core Utility plugin for WesterosCraft", 
+authors = {"TheKraken7", "mikeprimm", "Will Blew"})
 public class WesterosCraftCore {
 
-	@Inject private Logger logger;
-	@Inject private PluginContainer plugin;
-	@Inject @ConfigDir(sharedRoot = false) private File configDir;
-	
-	private Set<ItemType> guest_blacklist = new HashSet<ItemType>();
-	private Set<BlockType> stop_snow_form_on = new HashSet<BlockType>();
-	
-	public void initBlacklist() {
-		GameRegistry gr = Sponge.getRegistry();
-		guest_blacklist.add(ItemTypes.ITEM_FRAME);
-		guest_blacklist.add(ItemTypes.PAINTING);
-		guest_blacklist.add(ItemTypes.WATER_BUCKET);
-		guest_blacklist.add(ItemTypes.LAVA_BUCKET);
-		guest_blacklist.add(ItemTypes.DRAGON_EGG);
-		guest_blacklist.add(ItemTypes.MONSTER_EGG);
-		guest_blacklist.add(ItemTypes.SPAWN_EGG);
-		guest_blacklist.add(ItemTypes.BOAT);
-		guest_blacklist.add(ItemTypes.ACACIA_BOAT);
-		guest_blacklist.add(ItemTypes.BIRCH_BOAT);
-		guest_blacklist.add(ItemTypes.DARK_OAK_BOAT);
-		guest_blacklist.add(ItemTypes.JUNGLE_BOAT);
-		guest_blacklist.add(ItemTypes.SPRUCE_BOAT);
-		guest_blacklist.add(ItemTypes.MINECART);
-		guest_blacklist.add(ItemTypes.CHEST_MINECART);
-		guest_blacklist.add(ItemTypes.BLACK_SHULKER_BOX);
-		guest_blacklist.add(ItemTypes.BLUE_SHULKER_BOX);
-		guest_blacklist.add(ItemTypes.BROWN_SHULKER_BOX);
-		guest_blacklist.add(ItemTypes.CYAN_SHULKER_BOX);
-		guest_blacklist.add(ItemTypes.GRAY_SHULKER_BOX);
-		guest_blacklist.add(ItemTypes.GREEN_SHULKER_BOX);
-		guest_blacklist.add(ItemTypes.LIGHT_BLUE_SHULKER_BOX);
-		guest_blacklist.add(ItemTypes.LIME_SHULKER_BOX);
-		guest_blacklist.add(ItemTypes.MAGENTA_SHULKER_BOX);
-		guest_blacklist.add(ItemTypes.ORANGE_SHULKER_BOX);
-		guest_blacklist.add(ItemTypes.PINK_SHULKER_BOX);
-		guest_blacklist.add(ItemTypes.PURPLE_SHULKER_BOX);
-		guest_blacklist.add(ItemTypes.RED_SHULKER_BOX);
-		guest_blacklist.add(ItemTypes.SILVER_SHULKER_BOX);
-		guest_blacklist.add(ItemTypes.WHITE_SHULKER_BOX);
-		guest_blacklist.add(ItemTypes.YELLOW_SHULKER_BOX);
-		guest_blacklist.add(ItemTypes.ANVIL);
-		guest_blacklist.add(ItemTypes.ARMOR_STAND);
-		guest_blacklist.add(ItemTypes.POTION);
-		guest_blacklist.add(ItemTypes.END_CRYSTAL);
-		guest_blacklist.add(ItemTypes.ENDER_EYE);
-		guest_blacklist.add(ItemTypes.EXPERIENCE_BOTTLE);
-		guest_blacklist.add(ItemTypes.EGG);
-		guest_blacklist.add(ItemTypes.SNOWBALL);
-		guest_blacklist.add(ItemTypes.SNOW_LAYER);
-		guest_blacklist.add(gr.getType(ItemType.class, "westerosblocks:sand_layer_0").get());
-		guest_blacklist.add(gr.getType(ItemType.class, "westerosblocks:sand_layer_1").get());
-		guest_blacklist.add(gr.getType(ItemType.class, "westerosblocks:sand_layer_2").get());
-		guest_blacklist.add(gr.getType(ItemType.class, "westerosblocks:sand_layer_3").get());
-		// Migration of current settings - switch to parameter file
-		stop_snow_form_on.add(BlockTypes.COBBLESTONE);
-		stop_snow_form_on.add(BlockTypes.GRAVEL);
-		stop_snow_form_on.add(BlockTypes.DOUBLE_STONE_SLAB);
-		stop_snow_form_on.add(BlockTypes.DOUBLE_STONE_SLAB2);
-		
-	}
-	
-	public Logger getLogger(){
-		return logger;
-	}
-	
-	public File getConfigDirectory(){
-		return configDir;
-	}
-	
-	public PluginContainer getPlugin(){
-		return plugin;
-	}
-	
-	/**
-	 * 
-	 * All initializations for the plugin should be done here.
-	 * 
-	 * @param e GamePreInitializationEvent dispatched by Sponge.
-	 */
-	@Listener
-	public void onGamePreInitialization(GamePreInitializationEvent e){
-		getLogger().info("Enabling " + plugin.getName() + " version " + plugin.getVersion().get() + ".");
-		
-		ResponseListener rl = new ResponseListener(this);
-		
-		Sponge.getEventManager().registerListener(this, MessageChannelEvent.Chat.class, rl);
-		
-		Sponge.getCommandManager().register(this, CommandSpec.builder()
-				.description(Text.of("Enable or disable nightvision."))
-				.permission(plugin.getId() + ".nightvision")
-				.arguments(GenericArguments.onlyOne(GenericArguments.optionalWeak(GenericArguments.player(Text.of("player")))))
-				.executor(new CommandNightvision(this))
-				.build(), Arrays.asList("nightvision", "nv"));
-		Sponge.getCommandManager().register(this, CommandSpec.builder()
-				.description(Text.of("Display player list, with groups."))
-				.permission(plugin.getId() + ".plist")
-				.executor(new CommandPList(this))
-				.build(), Arrays.asList("plist"));	
-	}
-	
+    @Inject private Logger logger;
+    @Inject private PluginContainer plugin;
+    @Inject @ConfigDir(sharedRoot = false) private File configDir;
+
+    @Inject
+    @DefaultConfig(sharedRoot = false)
+    private ConfigurationLoader<CommentedConfigurationNode> configManager;
+    
+    private Set<ItemType> guest_blacklist = new HashSet<ItemType>();
+    private Set<BlockType> stop_snow_form_on = new HashSet<BlockType>();
+    private Set<BlockType> stop_grow = new HashSet<BlockType>();
+    private Set<BlockType> stop_form = new HashSet<BlockType>();
+    private Set<BlockType> stop_spread = new HashSet<BlockType>();
+    private int max_wheat_grow_size = -1;
+    private int max_carrot_grow_size = -1;
+    private int max_potato_grow_size = -1;
+    
+
+    public void initBlacklist() {
+        Asset asset = plugin.getAsset("westeroscraftcore.conf").orElse(null);
+        Path configPath = configDir.toPath().resolve("westeroscraftcore.conf");
+        
+        if (Files.notExists(configPath)) {
+            if (asset != null) {
+                try {
+                    asset.copyToFile(configPath);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    logger.error("Could not unpack the default config from the jar!");
+                    return;
+                }
+            } else {
+                logger.error("Could not find the default config file in the jar!");
+                return;
+            }
+        }
+        CommentedConfigurationNode rootNode;
+        try {
+            rootNode = configManager.load();
+        } catch (IOException e) {
+            logger.error("An IOException occured while trying to load the config");
+            return;
+        }
+        GameRegistry gr = Sponge.getRegistry();
+        // Get guest blacklist
+        for (CommentedConfigurationNode ch : rootNode.getNode("config", "guest_blacklist").getChildrenMap().values()) {
+            String id = ch.getString("");
+            ItemType it = gr.getType(ItemType.class, id).orElse(null);
+            if (it == null) {
+                logger.error("Error finding guest_blacklist item type: " + id);
+            }
+            else {
+                guest_blacklist.add(it);
+            }
+        }
+        // Get stop_snow_form_on
+        for (CommentedConfigurationNode ch : rootNode.getNode("config", "stop_snow_form_on").getChildrenMap().values()) {
+            String id = ch.getString("");
+            BlockType bt = gr.getType(BlockType.class, id).orElse(null);
+            if (bt == null) {
+                logger.error("Error finding stop_snow_form_on block type: " + id);
+            }
+            else {
+                stop_snow_form_on.add(bt);
+            }
+        }
+        // Get stop_grow
+        for (CommentedConfigurationNode ch : rootNode.getNode("config", "stop_grow").getChildrenMap().values()) {
+            String id = ch.getString("");
+            BlockType bt = gr.getType(BlockType.class, id).orElse(null);
+            if (bt == null) {
+                logger.error("Error finding stop_grow block type: " + id);
+            }
+            else {
+                stop_grow.add(bt);
+            }
+        }
+        // Get stop_form
+        for (CommentedConfigurationNode ch : rootNode.getNode("config", "stop_form").getChildrenMap().values()) {
+            String id = ch.getString("");
+            BlockType bt = gr.getType(BlockType.class, id).orElse(null);
+            if (bt == null) {
+                logger.error("Error finding stop_form block type: " + id);
+            }
+            else {
+                stop_form.add(bt);
+            }
+        }
+        // Get stop_spread
+        for (CommentedConfigurationNode ch : rootNode.getNode("config", "stop_spread").getChildrenMap().values()) {
+            String id = ch.getString("");
+            BlockType bt = gr.getType(BlockType.class, id).orElse(null);
+            if (bt == null) {
+                logger.error("Error finding stop_spread block type: " + id);
+            }
+            else {
+                stop_spread.add(bt);
+            }
+        }
+        // Migration of current settigns - switch to parameter file
+        max_wheat_grow_size = rootNode.getNode("config", "max_wheat_grow_size").getInt(-1);
+        max_carrot_grow_size = rootNode.getNode("config", "max_carrot_grow_size").getInt(-1);
+        max_potato_grow_size = rootNode.getNode("config", "max_potato_grow_size").getInt(-1);
+    }
+
+    public Logger getLogger(){
+        return logger;
+    }
+
+    public File getConfigDirectory(){
+        return configDir;
+    }
+
+    public PluginContainer getPlugin(){
+        return plugin;
+    }
+
+    /**
+     * 
+     * All initializations for the plugin should be done here.
+     * 
+     * @param e GamePreInitializationEvent dispatched by Sponge.
+     */
+    @Listener
+    public void onGamePreInitialization(GamePreInitializationEvent e){
+        getLogger().info("Enabling " + plugin.getName() + " version " + plugin.getVersion().get() + ".");
+
+        ResponseListener rl = new ResponseListener(this);
+
+        Sponge.getEventManager().registerListener(this, MessageChannelEvent.Chat.class, rl);
+
+        Sponge.getCommandManager().register(this, CommandSpec.builder()
+                .description(Text.of("Enable or disable nightvision."))
+                .permission(plugin.getId() + ".nightvision")
+                .arguments(GenericArguments.onlyOne(GenericArguments.optionalWeak(GenericArguments.player(Text.of("player")))))
+                .executor(new CommandNightvision(this))
+                .build(), Arrays.asList("nightvision", "nv"));
+        Sponge.getCommandManager().register(this, CommandSpec.builder()
+                .description(Text.of("Display player list, with groups."))
+                .permission(plugin.getId() + ".plist")
+                .executor(new CommandPList(this))
+                .build(), Arrays.asList("plist"));	
+    }
+
     @Listener
     public void onGameStartedServer(GameStartedServerEvent e){
-		initBlacklist();
+        initBlacklist();
     }
-    
-	/**
-	 * Sponge Implementation of Hotfix1.
-	 * 
-	 * This method listens to block breaks and prevents fire from
-	 * being broken unless the user has the necessary permission.
-	 * 
-	 * @param e ChangeBlockEvent.Break dispatched by Sponge.
-	 */
-	@Listener
-	public void blockFirePunch(ChangeBlockEvent.Break e){
-		for(Transaction<BlockSnapshot> t : e.getTransactions()){
-			if(t.getOriginal().getState().getType().equals(BlockTypes.FIRE)){
-				Optional<Player> playerOpt = e.getCause().first(Player.class);
-				if(playerOpt.isPresent()){
-					Player p = playerOpt.get();
-					if(!p.hasPermission(plugin.getId() + ".firepunch")){
-						e.setCancelled(true);
-					}
-				}
-			}
-		}
-	}
-	
-	@Listener
-	public void onPlayerJoin(ClientConnectionEvent.Join e){
-		MessageUtil.sendMessage(e.getTargetEntity(), Text.of(TextColors.RED, "Welcome to Westeroscraft! Visit /warps for a list of warps!"));
-	}
-	
-	/**
-	 * 
-	 * Any and all reload tasks will be called here if the command
-	 * <code>/sponge plugins reload</code> is run.
-	 * 
-	 * @param e GameReloadEvent dispatched by Sponge.
-	 */
-	@Listener
-	public void onReload(GameReloadEvent e){
-		ResponseListener.loadResponses(this);
-	}
-	
-	/**
-	 * Log all command invocations to the console for security.
-	 * 
-	 * @param e SendCommandEvent dispatched by Sponge.
-	 */
-	@Listener
-	public void logCommandInvocation(SendCommandEvent e){
+
+    /**
+     * Sponge Implementation of Hotfix1.
+     * 
+     * This method listens to block breaks and prevents fire from
+     * being broken unless the user has the necessary permission.
+     * 
+     * @param e ChangeBlockEvent.Break dispatched by Sponge.
+     */
+    @Listener
+    public void blockFirePunch(ChangeBlockEvent.Break e){
+        for(Transaction<BlockSnapshot> t : e.getTransactions()){
+            if(t.getOriginal().getState().getType().equals(BlockTypes.FIRE)){
+                Optional<Player> playerOpt = e.getCause().first(Player.class);
+                if(playerOpt.isPresent()){
+                    Player p = playerOpt.get();
+                    if(!p.hasPermission(plugin.getId() + ".firepunch")){
+                        e.setCancelled(true);
+                    }
+                }
+            }
+        }
+    }
+
+    @Listener
+    public void onPlayerJoin(ClientConnectionEvent.Join e){
+        MessageUtil.sendMessage(e.getTargetEntity(), Text.of(TextColors.RED, "Welcome to Westeroscraft! Visit /warps for a list of warps!"));
+    }
+
+    /**
+     * 
+     * Any and all reload tasks will be called here if the command
+     * <code>/sponge plugins reload</code> is run.
+     * 
+     * @param e GameReloadEvent dispatched by Sponge.
+     */
+    @Listener
+    public void onReload(GameReloadEvent e){
+        ResponseListener.loadResponses(this);
+    }
+
+    /**
+     * Log all command invocations to the console for security.
+     * 
+     * @param e SendCommandEvent dispatched by Sponge.
+     */
+    @Listener
+    public void logCommandInvocation(SendCommandEvent e){
         String source = "?unknown?";
-        
+
         Optional<Player> pOpt;
         if ((pOpt = e.getCause().first(Player.class)).isPresent()) source = pOpt.get().getName();
         else if(e.getCause().first(ConsoleSource.class).isPresent()) source = "console";
         else if(e.getCause().first(CommandBlockSource.class).isPresent()) source = "command block";
 
         logger.info("{}: /{} {}", source, e.getCommand(), e.getArguments());
-	}
-	
+    }
+
     @Listener
     public void onPostInit(GamePostInitializationEvent event) {
         Optional<PermissionService> ops = Sponge.getServiceManager().provide(PermissionService.class);
         if (ops.isPresent()) {
             Optional<PermissionDescription.Builder> opdb = ops.get().newDescriptionBuilder(this);
             if (opdb.isPresent()) {
-            	opdb.get().assign(PermissionDescription.ROLE_ADMIN, true).description(Text.of("Fire punch")).id(plugin.getId() + ".firepunch").register();
-            	opdb.get().assign(PermissionDescription.ROLE_USER, true).description(Text.of("Use [Warp] signs")).id(plugin.getId() + ".warpsign.use").register();
-            	opdb.get().assign(PermissionDescription.ROLE_USER, true).description(Text.of("Toggle nightvision.")).id(plugin.getId() + ".nightvision").register();
-            	opdb.get().assign(PermissionDescription.ROLE_ADMIN, true).description(Text.of("Toggle nightvision for others.")).id(plugin.getId() + ".nightvision.others").register();
-            	opdb.get().assign(PermissionDescription.ROLE_USER, true).description(Text.of("View player list with groups.")).id(plugin.getId() + ".plist").register();
-            	opdb.get().assign(PermissionDescription.ROLE_ADMIN, true).description(Text.of("Allow item frame changes.")).id(plugin.getId() + ".itemframe.change").register();
-            	opdb.get().assign(PermissionDescription.ROLE_ADMIN, true).description(Text.of("Allow painting changes.")).id(plugin.getId() + ".painting.change").register();
-            	opdb.get().assign(PermissionDescription.ROLE_ADMIN, true).description(Text.of("Use guest blacklisted items.")).id(plugin.getId() + ".blacklist.use").register();
+                opdb.get().assign(PermissionDescription.ROLE_ADMIN, true).description(Text.of("Fire punch")).id(plugin.getId() + ".firepunch").register();
+                opdb.get().assign(PermissionDescription.ROLE_USER, true).description(Text.of("Use [Warp] signs")).id(plugin.getId() + ".warpsign.use").register();
+                opdb.get().assign(PermissionDescription.ROLE_USER, true).description(Text.of("Toggle nightvision.")).id(plugin.getId() + ".nightvision").register();
+                opdb.get().assign(PermissionDescription.ROLE_ADMIN, true).description(Text.of("Toggle nightvision for others.")).id(plugin.getId() + ".nightvision.others").register();
+                opdb.get().assign(PermissionDescription.ROLE_USER, true).description(Text.of("View player list with groups.")).id(plugin.getId() + ".plist").register();
+                opdb.get().assign(PermissionDescription.ROLE_ADMIN, true).description(Text.of("Allow item frame changes.")).id(plugin.getId() + ".itemframe.change").register();
+                opdb.get().assign(PermissionDescription.ROLE_ADMIN, true).description(Text.of("Allow painting changes.")).id(plugin.getId() + ".painting.change").register();
+                opdb.get().assign(PermissionDescription.ROLE_ADMIN, true).description(Text.of("Use guest blacklisted items.")).id(plugin.getId() + ".blacklist.use").register();
+            }
+        }
+    }
+
+    @Listener
+    public void onSignTarget(InteractBlockEvent.Secondary event, @Root Player player) {
+        Optional<Location<World>> optLocation = event.getTargetBlock().getLocation();
+        if (optLocation.isPresent() && optLocation.get().getTileEntity().isPresent()) {
+            Location<World> location = optLocation.get();
+            TileEntity clickedEntity = location.getTileEntity().get();
+
+            if (event.getTargetBlock().getState().getType().equals(BlockTypes.STANDING_SIGN) || event.getTargetBlock().getState().getType().equals(BlockTypes.WALL_SIGN)) {
+                Optional<SignData> signData = clickedEntity.getOrCreate(SignData.class);
+
+                if (signData.isPresent()) {
+                    SignData data = signData.get();
+                    CommandManager cmdService = Sponge.getGame().getCommandManager();
+                    String line0 = data.getValue(Keys.SIGN_LINES).get().get(0).toPlain();
+                    String line1 = data.getValue(Keys.SIGN_LINES).get().get(1).toPlain();
+                    String command = "warp " + line1;
+
+                    if (line0.indexOf("[Warp]") >= 0) {
+                        if (player.hasPermission(plugin.getId() + ".warpsign.use")) {
+                            cmdService.process(player, command);
+                        }
+                        else {
+                            player.sendMessage(Text.of(TextColors.DARK_RED, "Error! ", TextColors.RED, "You do not have permission to use Warp Signs!"));
+                        }
+                    }
+                }
             }
         }
     }
     
-    @Listener
-    public void onSignTarget(InteractBlockEvent.Secondary event, @Root Player player) {
-		Optional<Location<World>> optLocation = event.getTargetBlock().getLocation();
-		if (optLocation.isPresent() && optLocation.get().getTileEntity().isPresent()) {
-			Location<World> location = optLocation.get();
-			TileEntity clickedEntity = location.getTileEntity().get();
-
-			if (event.getTargetBlock().getState().getType().equals(BlockTypes.STANDING_SIGN) || event.getTargetBlock().getState().getType().equals(BlockTypes.WALL_SIGN)) {
-				Optional<SignData> signData = clickedEntity.getOrCreate(SignData.class);
-
-				if (signData.isPresent()) {
-					SignData data = signData.get();
-					CommandManager cmdService = Sponge.getGame().getCommandManager();
-					String line0 = data.getValue(Keys.SIGN_LINES).get().get(0).toPlain();
-					String line1 = data.getValue(Keys.SIGN_LINES).get().get(1).toPlain();
-					String command = "warp " + line1;
-
-					if (line0.indexOf("[Warp]") >= 0) {
-						if (player.hasPermission(plugin.getId() + ".warpsign.use")) {
-							cmdService.process(player, command);
-						}
-						else {
-							player.sendMessage(Text.of(TextColors.DARK_RED, "Error! ", TextColors.RED, "You do not have permission to use Warp Signs!"));
-						}
-					}
-				}
-			}
-		}
-	}
-    @Listener
+    @Listener(order = Order.FIRST, beforeModifications = true)
     public void onEntityInteract(InteractEntityEvent event, @Root Player player) {
-    	// Prevent unauthorized folks from messing with item frames
-    	Entity ent = event.getTargetEntity();
-    	if (ent instanceof ItemFrame) {
-			if (!player.hasPermission(plugin.getId() + ".itemframe.change")) {
-				event.setCancelled(true);
-			}
-    	}
-    	else if (ent instanceof Painting) {
-			if (!player.hasPermission(plugin.getId() + ".painting.change")) {
-				event.setCancelled(true);
-			}
-    	}
+        // Prevent unauthorized folks from messing with item frames, paintings
+        Entity ent = event.getTargetEntity();
+        if (ent instanceof ItemFrame) {
+            if (!player.hasPermission(plugin.getId() + ".itemframe.change")) {
+                event.setCancelled(true);
+            }
+        }
+        else if (ent instanceof Painting) {
+            if (!player.hasPermission(plugin.getId() + ".painting.change")) {
+                event.setCancelled(true);
+            }
+        }
     }
-    
-    @Listener
+
+    @Listener(order = Order.FIRST, beforeModifications = true)
     public void onItemInteract(InteractItemEvent event, @Root Player player) {
-    	ItemStackSnapshot item = event.getItemStack();
-    	if (guest_blacklist.contains(item.getType())) {
-			if (!player.hasPermission(plugin.getId() + ".blacklist.use")) {
-				event.setCancelled(true);
-			}
-    	}
+        ItemStackSnapshot item = event.getItemStack();
+        if (guest_blacklist.contains(item.getType())) {
+            if (!player.hasPermission(plugin.getId() + ".blacklist.use")) {
+                event.setCancelled(true);
+            }
+        }
     }
-    
-    @Listener
+
+    @Listener(order = Order.FIRST, beforeModifications = true)
     public void onBlockChangePre(ChangeBlockEvent.Pre event) {
-    	Cause c = event.getCause();
-    	if (c.containsNamed(NamedCause.DECAY) || c.containsNamed("LeavesDecay")) {	// Workaround for current SpongeForge vs SpongeAPI mismatch
-    		event.setCancelled(true);
-    		return;
-    	}
-    }
-    @Listener
-    public void onBlockChangeDecay(ChangeBlockEvent.Decay event) {
-    	// Cancel all decay events - seem to only be for leaves, so we're OK for now
-		event.setCancelled(true);
+        Cause c = event.getCause();
+        if (c.containsNamed(NamedCause.DECAY) || c.containsNamed("LeavesDecay")) {	// Workaround for current SpongeForge vs SpongeAPI mismatch
+            event.setCancelled(true);
+            return;
+        }
     }
     
     @Listener(order = Order.FIRST, beforeModifications = true)
+    public void onBlockChangeDecay(ChangeBlockEvent.Decay event) {
+        //for (Transaction<BlockSnapshot> trans : event.getTransactions()) {
+        //    logger.info("Decay: " + trans.getOriginal().getState().getType() + " at " + trans.getOriginal().getLocation());
+        //}
+        // Cancel all decay events - seem to only be for leaves, so we're OK for now
+        event.setCancelled(true);
+    }
+
+    @Listener(order = Order.FIRST, beforeModifications = true)
     public void onBlockChangePlace(ChangeBlockEvent.Place event) {
-    	User user = event.getCause().first(User.class).orElse(null);
-    	if (user != null) {	// User action?
-    		return;	// Nothing to do here yet
-    	}
-    	else {	// Else automatic placement of some sort
-	       for (Transaction<BlockSnapshot> transaction : event.getTransactions()) {
-	            BlockSnapshot block = transaction.getFinal();
-	            BlockType bt = block.getState().getType();
-	            Location<World> location = block.getLocation().orElse(null);
-	            if (location == null) {
-	                continue;
-	            }
-	            // Handle snow
-	            if (bt == BlockTypes.SNOW_LAYER) {
-            		BlockType below_bt = location.add(0, -1, 0).getBlockType();
-            		// Block type we're blocking snow formation on
-            		if ((below_bt != null) && (stop_snow_form_on.contains(below_bt))) {
-            			transaction.setValid(false);
-            		}
-	            }
-	       }
-    	}
+        User user = event.getCause().get(NamedCause.SOURCE, User.class).orElse(null);
+        if (user != null)
+            return;
+        for (Transaction<BlockSnapshot> transaction : event.getTransactions()) {
+            //BlockType btinit = transaction.getOriginal().getState().getType();
+            BlockSnapshot block = transaction.getFinal();
+            BlockType bt = block.getState().getType();
+            Location<World> location = block.getLocation().orElse(null);
+            if (location == null) {
+                continue;
+            }
+            //logger.info("Place: " + btinit + "->" + bt + " at " + block.getLocation());
+            // Handle snow
+            if (bt == BlockTypes.SNOW_LAYER) {
+                BlockType below_bt = location.add(0, -1, 0).getBlockType();
+                // Block type we're blocking snow formation on
+                if ((below_bt != null) && (stop_snow_form_on.contains(below_bt))) {
+                    transaction.setValid(false);
+                }
+            }
+            // If stop form or stop spread or stop form, cancel transaction
+            else if (stop_form.contains(bt) || (stop_spread.contains(bt)) || (stop_form.contains(bt))) {
+                transaction.setValid(false);
+                //logger.info("Place: " + btinit + "->" + bt + " at " + block.getLocation() + " cancelled");
+            }
+        }
+    }
+    
+    @Listener(order = Order.FIRST, beforeModifications = true)
+    public void onBlockChangeModify(ChangeBlockEvent.Modify event) {
+        User user = event.getCause().get(NamedCause.SOURCE, User.class).orElse(null);
+        if (user != null) {	// User action?
+            return;	// Nothing to do here yet
+        }
+        else {	// Else automatic placement of some sort
+            for (Transaction<BlockSnapshot> transaction : event.getTransactions()) {
+                //BlockType btinit = transaction.getOriginal().getState().getType();
+                BlockSnapshot block = transaction.getFinal();
+                BlockType bt = block.getState().getType();
+                //logger.info("Modify: " + btinit + "->" + bt + " at " + block.getLocation());
+                if ((bt == BlockTypes.WHEAT) && (max_wheat_grow_size >= 0)) {   // If wheat
+                    int newage = block.getState().getTraitValue(IntegerTraits.WHEAT_AGE).orElse(0);
+                    if (newage > max_wheat_grow_size) {
+                        transaction.setValid(false);
+                        //logger.info("Cancel wheat grow to " + newage);
+                    }
+                }
+                else if ((bt == BlockTypes.CARROTS) && (max_carrot_grow_size >= 0)) {   // If wheat
+                    int newage = block.getState().getTraitValue(IntegerTraits.CARROTS_AGE).orElse(0);
+                    if (newage > max_carrot_grow_size) {
+                        transaction.setValid(false);
+                        //logger.info("Cancel carrot grow to " + newage);
+                    }
+                }
+                else if ((bt == BlockTypes.POTATOES) && (max_potato_grow_size >= 0)) {   // If wheat
+                    int newage = block.getState().getTraitValue(IntegerTraits.POTATOES_AGE).orElse(0);
+                    if (newage > max_potato_grow_size) {
+                        transaction.setValid(false);
+                        //logger.info("Cancel potato grow to " + newage);
+                    }
+                }
+            }
+        }
     }
 }
-	
+
