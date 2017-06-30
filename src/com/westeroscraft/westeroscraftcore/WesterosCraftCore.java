@@ -371,6 +371,9 @@ public class WesterosCraftCore {
             event.setCancelled(true);
             return;
         }
+        else if (c.containsNamed(NamedCause.PHYSICAL)) {
+            logger.info("Pre: PHYSICAL");
+        }
     }
     
     @Listener(order = Order.FIRST, beforeModifications = true)
@@ -388,7 +391,7 @@ public class WesterosCraftCore {
         if (user != null)
             return;
         for (Transaction<BlockSnapshot> transaction : event.getTransactions()) {
-            //BlockType btinit = transaction.getOriginal().getState().getType();
+            BlockType btinit = transaction.getOriginal().getState().getType();
             BlockSnapshot block = transaction.getFinal();
             BlockType bt = block.getState().getType();
             Location<World> location = block.getLocation().orElse(null);
@@ -409,6 +412,9 @@ public class WesterosCraftCore {
                 transaction.setValid(false);
                 //logger.info("Place: " + btinit + "->" + bt + " at " + block.getLocation() + " cancelled");
             }
+            else if ((btinit == BlockTypes.GRASS) && (bt == BlockTypes.DIRT)) {
+                transaction.setValid(false);
+            }
         }
     }
     
@@ -420,7 +426,7 @@ public class WesterosCraftCore {
         }
         else {	// Else automatic placement of some sort
             for (Transaction<BlockSnapshot> transaction : event.getTransactions()) {
-                //BlockType btinit = transaction.getOriginal().getState().getType();
+                BlockType btinit = transaction.getOriginal().getState().getType();
                 BlockSnapshot block = transaction.getFinal();
                 BlockType bt = block.getState().getType();
                 //logger.info("Modify: " + btinit + "->" + bt + " at " + block.getLocation());
