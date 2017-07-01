@@ -14,6 +14,7 @@ import org.spongepowered.api.GameRegistry;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.asset.Asset;
 import org.spongepowered.api.block.BlockSnapshot;
+import org.spongepowered.api.block.BlockState;
 import org.spongepowered.api.block.BlockType;
 import org.spongepowered.api.block.BlockTypes;
 import org.spongepowered.api.block.tileentity.TileEntity;
@@ -29,6 +30,8 @@ import org.spongepowered.api.data.Transaction;
 import org.spongepowered.api.data.key.Keys;
 import org.spongepowered.api.data.manipulator.mutable.tileentity.SignData;
 import org.spongepowered.api.entity.Entity;
+import org.spongepowered.api.entity.EntityTypes;
+import org.spongepowered.api.entity.Item;
 import org.spongepowered.api.entity.hanging.ItemFrame;
 import org.spongepowered.api.entity.hanging.Painting;
 import org.spongepowered.api.entity.living.player.Player;
@@ -39,8 +42,10 @@ import org.spongepowered.api.event.block.ChangeBlockEvent;
 import org.spongepowered.api.event.block.InteractBlockEvent;
 import org.spongepowered.api.event.cause.Cause;
 import org.spongepowered.api.event.cause.NamedCause;
+import org.spongepowered.api.event.cause.entity.spawn.BlockSpawnCause;
 import org.spongepowered.api.event.command.SendCommandEvent;
 import org.spongepowered.api.event.entity.InteractEntityEvent;
+import org.spongepowered.api.event.entity.SpawnEntityEvent;
 import org.spongepowered.api.event.filter.cause.Root;
 import org.spongepowered.api.event.game.GameReloadEvent;
 import org.spongepowered.api.event.game.state.GamePostInitializationEvent;
@@ -88,6 +93,7 @@ public class WesterosCraftCore {
     private Set<BlockType> stop_grow = new HashSet<BlockType>();
     private Set<BlockType> stop_form = new HashSet<BlockType>();
     private Set<BlockType> stop_spread = new HashSet<BlockType>();
+    private Set<BlockType> stop_block_entity_spawn = new HashSet<BlockType>();
     private int max_wheat_grow_size = -1;
     private int max_carrot_grow_size = -1;
     private int max_potato_grow_size = -1;
@@ -172,6 +178,17 @@ public class WesterosCraftCore {
             }
             else {
                 stop_spread.add(bt);
+            }
+        }
+        // Get stop_block_entity_spawn
+        for (CommentedConfigurationNode ch : rootNode.getNode("config", "stop_block_entity_spawn").getChildrenMap().values()) {
+            String id = ch.getString("");
+            BlockType bt = gr.getType(BlockType.class, id).orElse(null);
+            if (bt == null) {
+                logger.error("Error finding stop_block_entity_spawn block type: " + id);
+            }
+            else {
+            	stop_block_entity_spawn.add(bt);
             }
         }
         // Migration of current settigns - switch to parameter file
@@ -445,6 +462,19 @@ public class WesterosCraftCore {
                 }
             }
         }
+    }
+    // Handle entity spawns : block drops of apples and saplings by leaves, for example
+    @Listener(beforeModifications=true)
+    public void onEntitySpawn(SpawnEntityEvent event) {
+    	BlockSpawnCause source = event.getCause().get(NamedCause.SOURCE, BlockSpawnCause.class).orElse(null);
+    	if (source == null) {
+    		return;
+    	}
+    	BlockType type = source.getBlockSnapshot().getState().getType();
+    	// If source of item is leaves
+    	if (stop_block_entity_spawn.contains(type)) {
+    		event.setCancelled(true);
+    	}
     }
 }
 
