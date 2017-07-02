@@ -7,6 +7,9 @@
   
   <properties>
   	<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+	<timestamp>${maven.build.timestamp}</timestamp>
+	<maven.build.timestamp.format>yyyyMMddHHmm</maven.build.timestamp.format>
+	<BUILD_NUMBER>Dev${timestamp}</BUILD_NUMBER>
   </properties>
   
   <developers>
@@ -26,12 +29,10 @@
   
   <build>
   	<defaultGoal>package</defaultGoal>
-    <finalName>WesterosCraftCore</finalName>
-    <sourceDirectory>src</sourceDirectory>
-    <resources>
-        <resource>
-            <targetPath>./assets/westeroscraftcore</targetPath>
-            <directory>${basedir}/src/resources/</directory>
+	<resources>
+		<resource>
+			<directory>src/main/resources</directory>
+			<filtering>true</filtering>
         </resource>
     </resources>
     <plugins>
@@ -54,7 +55,7 @@
   </repositories>
   
   
-  <version>0.2</version>
+  <version>0.3</version>
   <dependencies>
   	<dependency>
   		<groupId>org.spongepowered</groupId>

@@ -1,0 +1,11 @@
+[{
+    "modid": "westeroscraftcore",
+    "name": "WesterosCraftCore",
+    "version":  "${project.version}-${BUILD_NUMBER}",
+    "description": "Core Utility plugin for WesterosCraft",
+    "authorList": [
+		"TheKraken7", 
+		"mikeprimm", 
+		"Will Blew"
+    ]
+}]

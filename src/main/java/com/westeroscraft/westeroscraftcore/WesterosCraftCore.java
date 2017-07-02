@@ -73,11 +73,7 @@ import com.westeroscraft.westeroscraftcore.listeners.ResponseListener;
 import ninja.leaping.configurate.commented.CommentedConfigurationNode;
 import ninja.leaping.configurate.loader.ConfigurationLoader;
 
-@Plugin(id = "westeroscraftcore", 
-name = "WesterosCraftCore",
-version = "1.0", 
-description = "Core Utility plugin for WesterosCraft", 
-authors = {"TheKraken7", "mikeprimm", "Will Blew"})
+@Plugin(id = "westeroscraftcore")
 public class WesterosCraftCore {
 
     @Inject private Logger logger;
@@ -217,7 +213,7 @@ public class WesterosCraftCore {
      */
     @Listener
     public void onGamePreInitialization(GamePreInitializationEvent e){
-        getLogger().info("Enabling " + plugin.getName() + " version " + plugin.getVersion().get() + ".");
+        getLogger().info("Enabling " + plugin.getName() + " version " + plugin.getVersion().orElse("") + ".");
 
         ResponseListener rl = new ResponseListener(this);
 
