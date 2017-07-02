@@ -9,12 +9,13 @@ import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
 
+import javax.inject.Inject;
+
 import org.slf4j.Logger;
 import org.spongepowered.api.GameRegistry;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.asset.Asset;
 import org.spongepowered.api.block.BlockSnapshot;
-import org.spongepowered.api.block.BlockState;
 import org.spongepowered.api.block.BlockType;
 import org.spongepowered.api.block.BlockTypes;
 import org.spongepowered.api.block.tileentity.TileEntity;
@@ -30,8 +31,6 @@ import org.spongepowered.api.data.Transaction;
 import org.spongepowered.api.data.key.Keys;
 import org.spongepowered.api.data.manipulator.mutable.tileentity.SignData;
 import org.spongepowered.api.entity.Entity;
-import org.spongepowered.api.entity.EntityTypes;
-import org.spongepowered.api.entity.Item;
 import org.spongepowered.api.entity.hanging.ItemFrame;
 import org.spongepowered.api.entity.hanging.Painting;
 import org.spongepowered.api.entity.living.player.Player;
@@ -58,6 +57,9 @@ import org.spongepowered.api.item.ItemType;
 import org.spongepowered.api.item.inventory.ItemStackSnapshot;
 import org.spongepowered.api.plugin.Plugin;
 import org.spongepowered.api.plugin.PluginContainer;
+import org.spongepowered.api.scoreboard.CollisionRules;
+import org.spongepowered.api.scoreboard.Scoreboard;
+import org.spongepowered.api.scoreboard.Team;
 import org.spongepowered.api.service.permission.PermissionDescription;
 import org.spongepowered.api.service.permission.PermissionService;
 import org.spongepowered.api.text.Text;
@@ -65,7 +67,6 @@ import org.spongepowered.api.text.format.TextColors;
 import org.spongepowered.api.world.Location;
 import org.spongepowered.api.world.World;
 
-import com.google.inject.Inject;
 import com.westeroscraft.westeroscraftcore.commands.CommandNightvision;
 import com.westeroscraft.westeroscraftcore.commands.CommandPList;
 import com.westeroscraft.westeroscraftcore.listeners.ResponseListener;
@@ -94,6 +95,7 @@ public class WesterosCraftCore {
     private int max_carrot_grow_size = -1;
     private int max_potato_grow_size = -1;
     
+    private Team builderTeam = null;
 
     public void initBlacklist() {
         Asset asset = plugin.getAsset("westeroscraftcore.conf").orElse(null);
@@ -235,6 +237,15 @@ public class WesterosCraftCore {
     @Listener
     public void onGameStartedServer(GameStartedServerEvent e){
         initBlacklist();
+        
+        Scoreboard sb = Sponge.getServer().getServerScoreboard().orElse(null);
+        if (sb != null) {
+        	builderTeam = sb.getTeam("Builders").orElse(null);
+        	if (builderTeam == null) {
+        		builderTeam = Team.builder().name("Builders").collisionRule(CollisionRules.NEVER).build();
+        		sb.registerTeam(builderTeam);
+        	}
+        }
     }
 
     /**
@@ -263,6 +274,10 @@ public class WesterosCraftCore {
     @Listener
     public void onPlayerJoin(ClientConnectionEvent.Join e){
         MessageUtil.sendMessage(e.getTargetEntity(), Text.of(TextColors.RED, "Welcome to Westeroscraft! Visit /warps for a list of warps!"));
+        
+        if (builderTeam != null) {
+        	builderTeam.addMember(Text.of(e.getTargetEntity().getName()));
+        }
     }
 
     /**
