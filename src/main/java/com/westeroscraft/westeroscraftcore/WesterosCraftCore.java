@@ -35,6 +35,7 @@ import org.spongepowered.api.entity.hanging.ItemFrame;
 import org.spongepowered.api.entity.hanging.Painting;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.entity.living.player.User;
+import org.spongepowered.api.entity.living.player.gamemode.GameModes;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.Order;
 import org.spongepowered.api.event.block.ChangeBlockEvent;
@@ -86,6 +87,7 @@ public class WesterosCraftCore {
     private ConfigurationLoader<CommentedConfigurationNode> configManager;
     
     private Set<ItemType> guest_blacklist = new HashSet<ItemType>();
+    private Set<ItemType> general_blacklist = new HashSet<ItemType>();
     private Set<BlockType> stop_snow_form_on = new HashSet<BlockType>();
     private Set<BlockType> stop_grow = new HashSet<BlockType>();
     private Set<BlockType> stop_form = new HashSet<BlockType>();
@@ -132,6 +134,17 @@ public class WesterosCraftCore {
             }
             else {
                 guest_blacklist.add(it);
+            }
+        }
+        // Get general blacklist
+        for (CommentedConfigurationNode ch : rootNode.getNode("config", "general_blacklist").getChildrenMap().values()) {
+            String id = ch.getString("");
+            ItemType it = gr.getType(ItemType.class, id).orElse(null);
+            if (it == null) {
+                logger.error("Error finding general_blacklist item type: " + id);
+            }
+            else {
+                general_blacklist.add(it);
             }
         }
         // Get stop_snow_form_on
@@ -274,10 +287,12 @@ public class WesterosCraftCore {
     @Listener
     public void onPlayerJoin(ClientConnectionEvent.Join e){
         MessageUtil.sendMessage(e.getTargetEntity(), Text.of(TextColors.RED, "Welcome to Westeroscraft! Visit /warps for a list of warps!"));
-        
+        Player player = e.getTargetEntity();
         if (builderTeam != null) {
-        	builderTeam.addMember(Text.of(e.getTargetEntity().getName()));
+        	builderTeam.addMember(Text.of(player.getName()));
         }
+        // Set players to creative on login
+        player.offer(Keys.GAME_MODE, GameModes.CREATIVE);
     }
 
     /**
@@ -323,6 +338,7 @@ public class WesterosCraftCore {
                 opdb.get().assign(PermissionDescription.ROLE_ADMIN, true).description(Text.of("Allow item frame changes.")).id(plugin.getId() + ".itemframe.change").register();
                 opdb.get().assign(PermissionDescription.ROLE_ADMIN, true).description(Text.of("Allow painting changes.")).id(plugin.getId() + ".painting.change").register();
                 opdb.get().assign(PermissionDescription.ROLE_ADMIN, true).description(Text.of("Use guest blacklisted items.")).id(plugin.getId() + ".blacklist.use").register();
+                opdb.get().assign(PermissionDescription.ROLE_ADMIN, true).description(Text.of("Use general blacklisted items.")).id(plugin.getId() + ".generalblacklist.use").register();
             }
         }
     }
@@ -378,6 +394,11 @@ public class WesterosCraftCore {
         ItemStackSnapshot item = event.getItemStack();
         if (guest_blacklist.contains(item.getType())) {
             if (!player.hasPermission(plugin.getId() + ".blacklist.use")) {
+                event.setCancelled(true);
+            }
+        }
+        if (general_blacklist.contains(item.getType())) {
+            if (!player.hasPermission(plugin.getId() + ".generalblacklist.use")) {
                 event.setCancelled(true);
             }
         }
