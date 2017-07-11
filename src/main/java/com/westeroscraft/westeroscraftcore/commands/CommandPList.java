@@ -5,7 +5,9 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
+import org.slf4j.Logger;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.command.CommandException;
 import org.spongepowered.api.command.CommandResult;
@@ -29,7 +31,10 @@ import com.westeroscraft.westeroscraftcore.WesterosCraftCore;
  *
  */
 public class CommandPList implements CommandExecutor{
+	private Logger logger;
+	
 	public CommandPList(WesterosCraftCore instance){
+		logger = instance.getLogger();
 	}
 	
 	@Override
@@ -56,10 +61,15 @@ public class CommandPList implements CommandExecutor{
 				pid = new ArrayList<Text>();
 				playersByGroup.put(gid,  pid);
 			}
-			Text prefix = TextSerializers.FORMATTING_CODE.deserialize(p.getOption(p.getActiveContexts(), "prefix").orElse(""));
-			Text suffix = TextSerializers.FORMATTING_CODE.deserialize(p.getOption(p.getActiveContexts(), "suffix").orElse(""));
+			Text prefix = TextSerializers.FORMATTING_CODE.deserialize(getOptionFromSubject(p, "prefix", ""));
+			Text suffix = TextSerializers.FORMATTING_CODE.deserialize(getOptionFromSubject(p, "suffix", ""));
+			String namecolor = getOptionFromSubject(p, "namecolor", "");
+			Text name = p.getDisplayNameData().displayName().get();
+			if (namecolor.length() > 0) {
+				name = TextSerializers.FORMATTING_CODE.deserialize("&" + namecolor + name.toPlainSingle());
+			}
 			// Check for prefix for player
-			pid.add(prefix.concat(p.getDisplayNameData().displayName().get()).concat(suffix));
+			pid.add(prefix.concat(name).concat(suffix));
 		}
 		String[] grpids = playersByGroup.keySet().toArray(new String[0]);
 		Arrays.sort(grpids);
@@ -81,5 +91,13 @@ public class CommandPList implements CommandExecutor{
 		}
 		return CommandResult.success();
 	}
-
+	private static String getOptionFromSubject(Player p, String option, String def) {
+		Optional<String> v = p.getOption(p.getActiveContexts(), option);
+		if (v.isPresent())
+			return v.get();
+		v = p.getOption(option);
+		if (v.isPresent())
+			return v.get();
+		return def;
+	}
 }
