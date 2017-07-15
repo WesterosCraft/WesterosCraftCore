@@ -540,7 +540,7 @@ public class WesterosCraftCore {
             return;
         }
         BlockType bt = event.getTargetBlock().getState().getType();
-        if (guest_blacklist.contains(bt)) {
+        if (guest_interact_blacklist.contains(bt)) {
             if (!user.hasPermission(plugin.getId() + ".blockinteract.blacklist.use")) {
                 event.setCancelled(true);
             }
