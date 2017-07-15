@@ -31,7 +31,6 @@ import org.spongepowered.api.data.Transaction;
 import org.spongepowered.api.data.key.Keys;
 import org.spongepowered.api.data.manipulator.mutable.tileentity.SignData;
 import org.spongepowered.api.entity.Entity;
-import org.spongepowered.api.entity.EntityType;
 import org.spongepowered.api.entity.EntityTypes;
 import org.spongepowered.api.entity.hanging.ItemFrame;
 import org.spongepowered.api.entity.hanging.Painting;
@@ -96,7 +95,6 @@ public class WesterosCraftCore {
     private Set<BlockType> stop_spread = new HashSet<BlockType>();
     private Set<BlockType> stop_block_entity_spawn = new HashSet<BlockType>();
     private Set<BlockType> guest_interact_blacklist = new HashSet<BlockType>();
-    private boolean stop_item_drops = false;
     private int max_wheat_grow_size = -1;
     private int max_carrot_grow_size = -1;
     private int max_potato_grow_size = -1;
@@ -221,7 +219,6 @@ public class WesterosCraftCore {
         max_wheat_grow_size = rootNode.getNode("config", "max_wheat_grow_size").getInt(-1);
         max_carrot_grow_size = rootNode.getNode("config", "max_carrot_grow_size").getInt(-1);
         max_potato_grow_size = rootNode.getNode("config", "max_potato_grow_size").getInt(-1);
-        stop_item_drops = rootNode.getNode("config", "stop_item_drops").getBoolean(false);
     }
 
     public Logger getLogger(){
@@ -534,12 +531,9 @@ public class WesterosCraftCore {
     }
     
     @Listener(beforeModifications=true)
-    public void onBlockInteract(InteractBlockEvent event) {
-        User user = event.getCause().get(NamedCause.SOURCE, User.class).orElse(null);
-        if (user == null) {
-            return;
-        }
-        BlockType bt = event.getTargetBlock().getState().getType();
+    public void onBlockInteract(InteractBlockEvent event, @Root Player user) {
+        BlockSnapshot bs = event.getTargetBlock();
+        BlockType bt = bs.getState().getType();
         if (guest_interact_blacklist.contains(bt)) {
             if (!user.hasPermission(plugin.getId() + ".blockinteract.blacklist.use")) {
                 event.setCancelled(true);
