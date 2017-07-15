@@ -95,6 +95,7 @@ public class WesterosCraftCore {
     private Set<BlockType> stop_form = new HashSet<BlockType>();
     private Set<BlockType> stop_spread = new HashSet<BlockType>();
     private Set<BlockType> stop_block_entity_spawn = new HashSet<BlockType>();
+    private Set<BlockType> guest_interact_blacklist = new HashSet<BlockType>();
     private boolean stop_item_drops = false;
     private int max_wheat_grow_size = -1;
     private int max_carrot_grow_size = -1;
@@ -148,6 +149,17 @@ public class WesterosCraftCore {
             }
             else {
                 general_blacklist.add(it);
+            }
+        }
+        // Get guest interact blacklist
+        for (CommentedConfigurationNode ch : rootNode.getNode("config", "guest_interact_blacklist").getChildrenMap().values()) {
+            String id = ch.getString("");
+            BlockType bt = gr.getType(BlockType.class, id).orElse(null);
+            if (bt == null) {
+                logger.error("Error finding guest_interact_blacklist block type: " + id);
+            }
+            else {
+                guest_interact_blacklist.add(bt);
             }
         }
         // Get stop_snow_form_on
@@ -343,6 +355,7 @@ public class WesterosCraftCore {
                 opdb.get().assign(PermissionDescription.ROLE_ADMIN, true).description(Text.of("Allow painting changes.")).id(plugin.getId() + ".painting.change").register();
                 opdb.get().assign(PermissionDescription.ROLE_ADMIN, true).description(Text.of("Use guest blacklisted items.")).id(plugin.getId() + ".blacklist.use").register();
                 opdb.get().assign(PermissionDescription.ROLE_ADMIN, true).description(Text.of("Use general blacklisted items.")).id(plugin.getId() + ".generalblacklist.use").register();
+                opdb.get().assign(PermissionDescription.ROLE_ADMIN, true).description(Text.of("Use guest interact blacklisted blocks.")).id(plugin.getId() + ".blockinteract.blacklist.use").register();
             }
         }
     }
@@ -518,6 +531,20 @@ public class WesterosCraftCore {
     	if (stop_block_entity_spawn.contains(type)) {
     		event.setCancelled(true);
     	}
+    }
+    
+    @Listener(beforeModifications=true)
+    public void onBlockInteract(InteractBlockEvent event) {
+        User user = event.getCause().get(NamedCause.SOURCE, User.class).orElse(null);
+        if (user == null) {
+            return;
+        }
+        BlockType bt = event.getTargetBlock().getState().getType();
+        if (guest_blacklist.contains(bt)) {
+            if (!user.hasPermission(plugin.getId() + ".blockinteract.blacklist.use")) {
+                event.setCancelled(true);
+            }
+        }
     }
 }
 
