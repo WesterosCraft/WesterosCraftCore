@@ -71,6 +71,7 @@ import org.spongepowered.api.world.World;
 
 import com.westeroscraft.westeroscraftcore.commands.CommandNightvision;
 import com.westeroscraft.westeroscraftcore.commands.CommandPList;
+import com.westeroscraft.westeroscraftcore.commands.CommandWCWhitelist;
 import com.westeroscraft.westeroscraftcore.listeners.ResponseListener;
 
 import ninja.leaping.configurate.commented.CommentedConfigurationNode;
@@ -98,6 +99,8 @@ public class WesterosCraftCore {
     private int max_wheat_grow_size = -1;
     private int max_carrot_grow_size = -1;
     private int max_potato_grow_size = -1;
+    
+    public boolean server_is_whitelist = false;
     
     private Team builderTeam = null;
 
@@ -219,6 +222,8 @@ public class WesterosCraftCore {
         max_wheat_grow_size = rootNode.getNode("config", "max_wheat_grow_size").getInt(-1);
         max_carrot_grow_size = rootNode.getNode("config", "max_carrot_grow_size").getInt(-1);
         max_potato_grow_size = rootNode.getNode("config", "max_potato_grow_size").getInt(-1);
+        
+        server_is_whitelist = rootNode.getNode("config", "server_is_whitelist").getBoolean(false);
     }
 
     public Logger getLogger(){
@@ -258,6 +263,11 @@ public class WesterosCraftCore {
                 .permission(plugin.getId() + ".plist")
                 .executor(new CommandPList(this))
                 .build(), Arrays.asList("plist"));	
+        Sponge.getCommandManager().register(this, CommandSpec.builder()
+                .description(Text.of("Toggle whitelist for server."))
+                .permission(plugin.getId() + ".whitelist.command")
+                .executor(new CommandWCWhitelist(this))
+                .build(), Arrays.asList("wcwhitelist"));  
     }
 
     @Listener
@@ -297,6 +307,19 @@ public class WesterosCraftCore {
         }
     }
 
+    @Listener
+    public void onPlayerLogin(ClientConnectionEvent.Login event) {
+        User player = event.getTargetUser();
+        if (server_is_whitelist) {
+            if(!player.hasPermission(plugin.getId() + ".whitelist.allowed")) {
+                event.setMessage(Text.of(TextColors.RED, "Server is not currently allowing guests - please try again later!"));
+                event.setCancelled(true);
+            }
+            else {
+                event.setMessage(Text.of(TextColors.YELLOW, "Server is not currently allowing guests"));
+            }
+        }
+    }
     @Listener
     public void onPlayerJoin(ClientConnectionEvent.Join e){
         MessageUtil.sendMessage(e.getTargetEntity(), Text.of(TextColors.RED, "Welcome to Westeroscraft! Visit /warps for a list of warps!"));
@@ -353,6 +376,7 @@ public class WesterosCraftCore {
                 opdb.get().assign(PermissionDescription.ROLE_ADMIN, true).description(Text.of("Use guest blacklisted items.")).id(plugin.getId() + ".blacklist.use").register();
                 opdb.get().assign(PermissionDescription.ROLE_ADMIN, true).description(Text.of("Use general blacklisted items.")).id(plugin.getId() + ".generalblacklist.use").register();
                 opdb.get().assign(PermissionDescription.ROLE_ADMIN, true).description(Text.of("Use guest interact blacklisted blocks.")).id(plugin.getId() + ".blockinteract.blacklist.use").register();
+                opdb.get().assign(PermissionDescription.ROLE_ADMIN, true).description(Text.of("Allowed access when server is whitelisted.")).id(plugin.getId() + ".whitelist.allowed").register();
             }
         }
     }
