@@ -545,8 +545,7 @@ public class WesterosCraftCore {
         // Stop item drops
         for (Entity ent : event.getEntities()) {
             if (ent.getType() == EntityTypes.ITEM) {
-                event.setCancelled(true);
-                return;
+                ent.remove();
             }
         }
     	BlockSpawnCause source = event.getCause().get(NamedCause.SOURCE, BlockSpawnCause.class).orElse(null);
