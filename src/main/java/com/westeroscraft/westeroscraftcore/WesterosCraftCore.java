@@ -495,7 +495,7 @@ public class WesterosCraftCore {
                 transaction.setValid(false);
             }
             if (transaction.isValid()) {
-                logger.info("Place: " + btinit + "->" + bt + " at " + block.getLocation());
+                //logger.info("Place: " + btinit + "->" + bt + " at " + block.getLocation());
             }
         }
     }
