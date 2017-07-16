@@ -315,9 +315,6 @@ public class WesterosCraftCore {
                 event.setMessage(Text.of(TextColors.RED, "Server is not currently allowing guests - please try again later!"));
                 event.setCancelled(true);
             }
-            else {
-                event.setMessage(Text.of(TextColors.YELLOW, "Server is not currently allowing guests"));
-            }
         }
     }
     @Listener
@@ -327,6 +324,11 @@ public class WesterosCraftCore {
         if (builderTeam != null) {
         	builderTeam.addMember(Text.of(player.getName()));
         }
+        // Let folks that can use /wcwhitelist command that server is whitelisted
+        if (server_is_whitelist && (player.hasPermission(plugin.getId() + ".whitelist.command"))) {
+            MessageUtil.sendMessage(player, Text.of(TextColors.YELLOW, "Server is not currently allowing guests - use /wcwhitelist to toggle whitelist"));
+        }
+
         // Set players to creative on login
         player.offer(Keys.GAME_MODE, GameModes.CREATIVE);
     }
