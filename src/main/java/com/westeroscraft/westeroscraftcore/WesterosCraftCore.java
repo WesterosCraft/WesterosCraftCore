@@ -478,7 +478,6 @@ public class WesterosCraftCore {
             if (location == null) {
                 continue;
             }
-            logger.info("Place: " + btinit + "->" + bt + " at " + block.getLocation());
             // Handle snow
             if (bt == BlockTypes.SNOW_LAYER) {
                 BlockType below_bt = location.add(0, -1, 0).getBlockType();
@@ -490,10 +489,13 @@ public class WesterosCraftCore {
             // If stop form or stop spread or stop form, cancel transaction
             else if (stop_form.contains(bt) || (stop_spread.contains(bt)) || (stop_grow.contains(bt))) {
                 transaction.setValid(false);
-                logger.info("Place: " + btinit + "->" + bt + " at " + block.getLocation() + " cancelled");
+                //logger.info("Place: " + btinit + "->" + bt + " at " + block.getLocation() + " cancelled");
             }
             else if ((btinit == BlockTypes.GRASS) && (bt == BlockTypes.DIRT)) {
                 transaction.setValid(false);
+            }
+            if (transaction.isValid()) {
+                logger.info("Place: " + btinit + "->" + bt + " at " + block.getLocation());
             }
         }
     }
@@ -510,7 +512,6 @@ public class WesterosCraftCore {
 				BlockType btinit = transaction.getOriginal().getState().getType();
                 BlockSnapshot block = transaction.getFinal();
                 BlockType bt = block.getState().getType();
-                logger.info("Modify: " + btinit + "->" + bt + " at " + block.getLocation());
                 if ((bt == BlockTypes.WHEAT) && (max_wheat_grow_size >= 0)) {   // If wheat
                     int newage = block.getState().getTraitValue(IntegerTraits.WHEAT_AGE).orElse(0);
                     if (newage > max_wheat_grow_size) {
@@ -531,6 +532,9 @@ public class WesterosCraftCore {
                         transaction.setValid(false);
                         //logger.info("Cancel potato grow to " + newage);
                     }
+                }
+                if (transaction.isValid()) {
+                    logger.info("Modify: " + btinit + "->" + bt + " at " + block.getLocation());
                 }
             }
         }
