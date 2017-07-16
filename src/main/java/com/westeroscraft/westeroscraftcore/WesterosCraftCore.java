@@ -487,7 +487,7 @@ public class WesterosCraftCore {
                 }
             }
             // If stop form or stop spread or stop form, cancel transaction
-            else if (stop_form.contains(bt) || (stop_spread.contains(bt)) || (stop_grow.contains(bt))) {
+            if (stop_form.contains(bt) || (stop_spread.contains(bt)) || (stop_grow.contains(bt))) {
                 transaction.setValid(false);
                 //logger.info("Place: " + btinit + "->" + bt + " at " + block.getLocation() + " cancelled");
             }
