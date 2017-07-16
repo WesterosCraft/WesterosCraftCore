@@ -534,7 +534,7 @@ public class WesterosCraftCore {
                     }
                 }
                 if (transaction.isValid()) {
-                    logger.info("Modify: " + btinit + "->" + bt + " at " + block.getLocation());
+                    //logger.info("Modify: " + btinit + "->" + bt + " at " + block.getLocation());
                 }
             }
         }
