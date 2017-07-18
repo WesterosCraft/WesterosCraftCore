@@ -480,8 +480,21 @@ public class WesterosCraftCore {
     @Listener(order = Order.FIRST, beforeModifications = true)
     public void onBlockChangePlace(ChangeBlockEvent.Place event) {
         User user = event.getCause().get(NamedCause.SOURCE, User.class).orElse(null);
-        if (user != null)
+        //logger.info("onBlockChangePlace() : user=" + ((user != null)?user.getName():"none"));
+        if (user != null) {
+            for (Transaction<BlockSnapshot> transaction : event.getTransactions()) {
+                @SuppressWarnings("unused")
+                BlockType btinit = transaction.getOriginal().getState().getType();
+                BlockSnapshot block = transaction.getFinal();
+                BlockType bt = block.getState().getType();
+                // If user changing from modify blocked block to non-AIR, assume trouncing protected blocks
+                if (stop_modify.contains(btinit) && (bt != BlockTypes.AIR)) {
+                    transaction.setValid(false);
+                    //logger.info("Cancel place by user for  " + btinit.getId());
+                }
+            }
             return;
+        }
         for (Transaction<BlockSnapshot> transaction : event.getTransactions()) {
             BlockType btinit = transaction.getOriginal().getState().getType();
             BlockSnapshot block = transaction.getFinal();
@@ -490,7 +503,7 @@ public class WesterosCraftCore {
             if (location == null) {
                 continue;
             }
-            logger.info("onBlockChangePlace() : init=" + btinit.getId() + ", new=" + bt.getId());
+            //logger.info("onBlockChangePlace() : init=" + btinit.getId() + ", new=" + bt.getId());
             // Handle snow
             if (bt == BlockTypes.SNOW_LAYER) {
                 BlockType below_bt = location.add(0, -1, 0).getBlockType();
@@ -515,10 +528,20 @@ public class WesterosCraftCore {
     
     @Listener(order = Order.FIRST, beforeModifications = true)
     public void onBlockChangeModify(ChangeBlockEvent.Modify event) {
-        logger.info("onBlockChangeModify()");
         User user = event.getCause().get(NamedCause.SOURCE, User.class).orElse(null);
-        logger.info("onBlockChangeModify() : user=" + ((user != null)?user.getName():"none"));
+        //logger.info("onBlockChangeModify() : user=" + ((user != null)?user.getName():"none"));
         if (user != null) {	// User action?
+            for (Transaction<BlockSnapshot> transaction : event.getTransactions()) {
+                @SuppressWarnings("unused")
+                BlockType btinit = transaction.getOriginal().getState().getType();
+                BlockSnapshot block = transaction.getFinal();
+                BlockType bt = block.getState().getType();
+                // If user changing from modify blocked block to non-AIR, assume trouncing protected blocks
+                if (stop_modify.contains(btinit) && (bt != BlockTypes.AIR)) {
+                    transaction.setValid(false);
+                    //logger.info("Cancel modify by user for  " + btinit.getId());
+                }
+            }
             return;	// Nothing to do here yet
         }
         else {	// Else automatic placement of some sort
@@ -527,7 +550,7 @@ public class WesterosCraftCore {
 				BlockType btinit = transaction.getOriginal().getState().getType();
                 BlockSnapshot block = transaction.getFinal();
                 BlockType bt = block.getState().getType();
-                logger.info("onBlockChangeModify() : init=" + btinit.getId() + ", new=" + bt.getId());
+                //logger.info("onBlockChangeModify() : init=" + btinit.getId() + ", new=" + bt.getId());
                 if ((bt == BlockTypes.WHEAT) && (max_wheat_grow_size >= 0)) {   // If wheat
                     int newage = block.getState().getTraitValue(IntegerTraits.WHEAT_AGE).orElse(0);
                     if (newage > max_wheat_grow_size) {
@@ -551,7 +574,7 @@ public class WesterosCraftCore {
                 }
                 if (stop_modify.contains(btinit)) { // If in no-modify list
                     transaction.setValid(false);
-                    logger.info("Cancel modify for  " + btinit.getId());
+                    //logger.info("Cancel modify for  " + btinit.getId());
                 }
                 if (transaction.isValid()) {
                     //logger.info("Modify: " + btinit + "->" + bt + " at " + block.getLocation());
