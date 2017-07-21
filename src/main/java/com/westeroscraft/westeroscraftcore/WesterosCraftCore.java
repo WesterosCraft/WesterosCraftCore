@@ -362,17 +362,18 @@ public class WesterosCraftCore {
      * 
      * @param e SendCommandEvent dispatched by Sponge.
      */
-    @Listener
-    public void logCommandInvocation(SendCommandEvent e){
-        String source = "?unknown?";
-
-        Optional<Player> pOpt;
-        if ((pOpt = e.getCause().first(Player.class)).isPresent()) source = pOpt.get().getName();
-        else if(e.getCause().first(ConsoleSource.class).isPresent()) source = "console";
-        else if(e.getCause().first(CommandBlockSource.class).isPresent()) source = "command block";
-
-        logger.info("{}: /{} {}", source, e.getCommand(), e.getArguments());
-    }
+// Disabled due to privacy concerns
+//    @Listener
+//    public void logCommandInvocation(SendCommandEvent e){
+//        String source = "?unknown?";
+//
+//        Optional<Player> pOpt;
+//        if ((pOpt = e.getCause().first(Player.class)).isPresent()) source = pOpt.get().getName();
+//        else if(e.getCause().first(ConsoleSource.class).isPresent()) source = "console";
+//        else if(e.getCause().first(CommandBlockSource.class).isPresent()) source = "command block";
+//
+//        logger.info("{}: /{} {}", source, e.getCommand(), e.getArguments());
+//    }
 
     @Listener
     public void onPostInit(GamePostInitializationEvent event) {
