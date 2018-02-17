@@ -34,16 +34,18 @@ import org.spongepowered.api.entity.Entity;
 import org.spongepowered.api.entity.EntityTypes;
 import org.spongepowered.api.entity.hanging.ItemFrame;
 import org.spongepowered.api.entity.hanging.Painting;
+import org.spongepowered.api.entity.living.Living;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.entity.living.player.User;
 import org.spongepowered.api.entity.living.player.gamemode.GameModes;
+import org.spongepowered.api.event.Event;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.Order;
 import org.spongepowered.api.event.block.ChangeBlockEvent;
 import org.spongepowered.api.event.block.InteractBlockEvent;
 import org.spongepowered.api.event.cause.Cause;
-import org.spongepowered.api.event.cause.NamedCause;
-import org.spongepowered.api.event.cause.entity.spawn.BlockSpawnCause;
+import org.spongepowered.api.event.cause.EventContext;
+import org.spongepowered.api.event.cause.EventContextKeys;
 import org.spongepowered.api.event.command.SendCommandEvent;
 import org.spongepowered.api.event.entity.InteractEntityEvent;
 import org.spongepowered.api.event.entity.SpawnEntityEvent;
@@ -55,6 +57,7 @@ import org.spongepowered.api.event.game.state.GameStartedServerEvent;
 import org.spongepowered.api.event.item.inventory.InteractItemEvent;
 import org.spongepowered.api.event.message.MessageChannelEvent;
 import org.spongepowered.api.event.network.ClientConnectionEvent;
+import org.spongepowered.api.event.world.ExplosionEvent;
 import org.spongepowered.api.item.ItemType;
 import org.spongepowered.api.item.inventory.ItemStackSnapshot;
 import org.spongepowered.api.plugin.Plugin;
@@ -63,6 +66,7 @@ import org.spongepowered.api.scoreboard.CollisionRules;
 import org.spongepowered.api.scoreboard.Scoreboard;
 import org.spongepowered.api.scoreboard.Team;
 import org.spongepowered.api.service.permission.PermissionDescription;
+import org.spongepowered.api.service.permission.PermissionDescription.Builder;
 import org.spongepowered.api.service.permission.PermissionService;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.format.TextColors;
@@ -379,19 +383,19 @@ public class WesterosCraftCore {
     public void onPostInit(GamePostInitializationEvent event) {
         Optional<PermissionService> ops = Sponge.getServiceManager().provide(PermissionService.class);
         if (ops.isPresent()) {
-            Optional<PermissionDescription.Builder> opdb = ops.get().newDescriptionBuilder(this);
-            if (opdb.isPresent()) {
-                opdb.get().assign(PermissionDescription.ROLE_ADMIN, true).description(Text.of("Fire punch")).id(plugin.getId() + ".firepunch").register();
-                opdb.get().assign(PermissionDescription.ROLE_USER, true).description(Text.of("Use [Warp] signs")).id(plugin.getId() + ".warpsign.use").register();
-                opdb.get().assign(PermissionDescription.ROLE_USER, true).description(Text.of("Toggle nightvision.")).id(plugin.getId() + ".nightvision").register();
-                opdb.get().assign(PermissionDescription.ROLE_ADMIN, true).description(Text.of("Toggle nightvision for others.")).id(plugin.getId() + ".nightvision.others").register();
-                opdb.get().assign(PermissionDescription.ROLE_USER, true).description(Text.of("View player list with groups.")).id(plugin.getId() + ".plist").register();
-                opdb.get().assign(PermissionDescription.ROLE_ADMIN, true).description(Text.of("Allow item frame changes.")).id(plugin.getId() + ".itemframe.change").register();
-                opdb.get().assign(PermissionDescription.ROLE_ADMIN, true).description(Text.of("Allow painting changes.")).id(plugin.getId() + ".painting.change").register();
-                opdb.get().assign(PermissionDescription.ROLE_ADMIN, true).description(Text.of("Use guest blacklisted items.")).id(plugin.getId() + ".blacklist.use").register();
-                opdb.get().assign(PermissionDescription.ROLE_ADMIN, true).description(Text.of("Use general blacklisted items.")).id(plugin.getId() + ".generalblacklist.use").register();
-                opdb.get().assign(PermissionDescription.ROLE_ADMIN, true).description(Text.of("Use guest interact blacklisted blocks.")).id(plugin.getId() + ".blockinteract.blacklist.use").register();
-                opdb.get().assign(PermissionDescription.ROLE_ADMIN, true).description(Text.of("Allowed access when server is whitelisted.")).id(plugin.getId() + ".whitelist.allowed").register();
+            Builder opdb = ops.get().newDescriptionBuilder(this);
+            if (opdb != null) {
+                opdb.assign(PermissionDescription.ROLE_ADMIN, true).description(Text.of("Fire punch")).id(plugin.getId() + ".firepunch").register();
+                opdb.assign(PermissionDescription.ROLE_USER, true).description(Text.of("Use [Warp] signs")).id(plugin.getId() + ".warpsign.use").register();
+                opdb.assign(PermissionDescription.ROLE_USER, true).description(Text.of("Toggle nightvision.")).id(plugin.getId() + ".nightvision").register();
+                opdb.assign(PermissionDescription.ROLE_ADMIN, true).description(Text.of("Toggle nightvision for others.")).id(plugin.getId() + ".nightvision.others").register();
+                opdb.assign(PermissionDescription.ROLE_USER, true).description(Text.of("View player list with groups.")).id(plugin.getId() + ".plist").register();
+                opdb.assign(PermissionDescription.ROLE_ADMIN, true).description(Text.of("Allow item frame changes.")).id(plugin.getId() + ".itemframe.change").register();
+                opdb.assign(PermissionDescription.ROLE_ADMIN, true).description(Text.of("Allow painting changes.")).id(plugin.getId() + ".painting.change").register();
+                opdb.assign(PermissionDescription.ROLE_ADMIN, true).description(Text.of("Use guest blacklisted items.")).id(plugin.getId() + ".blacklist.use").register();
+                opdb.assign(PermissionDescription.ROLE_ADMIN, true).description(Text.of("Use general blacklisted items.")).id(plugin.getId() + ".generalblacklist.use").register();
+                opdb.assign(PermissionDescription.ROLE_ADMIN, true).description(Text.of("Use guest interact blacklisted blocks.")).id(plugin.getId() + ".blockinteract.blacklist.use").register();
+                opdb.assign(PermissionDescription.ROLE_ADMIN, true).description(Text.of("Allowed access when server is whitelisted.")).id(plugin.getId() + ".whitelist.allowed").register();
             }
         }
     }
@@ -460,12 +464,10 @@ public class WesterosCraftCore {
     @Listener(order = Order.FIRST, beforeModifications = true)
     public void onBlockChangePre(ChangeBlockEvent.Pre event) {
         Cause c = event.getCause();
-        if (c.containsNamed(NamedCause.DECAY) || c.containsNamed("LeavesDecay")) {	// Workaround for current SpongeForge vs SpongeAPI mismatch
+        EventContext ctx = event.getContext();
+        if (ctx.containsKey(EventContextKeys.LEAVES_DECAY)) {
             event.setCancelled(true);
             return;
-        }
-        else if (c.containsNamed(NamedCause.PHYSICAL)) {
-            logger.info("Pre: PHYSICAL");
         }
     }
     
@@ -477,10 +479,38 @@ public class WesterosCraftCore {
         // Cancel all decay events - seem to only be for leaves, so we're OK for now
         event.setCancelled(true);
     }
+    
+    public static User getEventUser(Event event) {
+        final Cause cause = event.getCause();
+        final EventContext context = event.getContext();
+        User user = null;
+        if (cause != null) {
+            user = cause.first(User.class).orElse(null);
+        }
+
+        if (user == null) {
+            user = context.get(EventContextKeys.NOTIFIER)
+                    .orElse(context.get(EventContextKeys.OWNER)
+                            .orElse(context.get(EventContextKeys.CREATOR)
+                                    .orElse(null)));
+        }
+
+        if (user == null) {
+            if (event instanceof ExplosionEvent) {
+                // Check igniter
+                final Living living = context.get(EventContextKeys.IGNITER).orElse(null);
+                if (living != null && living instanceof User) {
+                    user = (User) living;
+                }
+            }
+        }
+
+        return user;
+    }
 
     @Listener(order = Order.FIRST, beforeModifications = true)
     public void onBlockChangePlace(ChangeBlockEvent.Place event) {
-        User user = event.getCause().get(NamedCause.SOURCE, User.class).orElse(null);
+        User user = getEventUser(event);
         //logger.info("onBlockChangePlace() : user=" + ((user != null)?user.getName():"none"));
         if (user != null) {
             for (Transaction<BlockSnapshot> transaction : event.getTransactions()) {
@@ -529,7 +559,7 @@ public class WesterosCraftCore {
     
     @Listener(order = Order.FIRST, beforeModifications = true)
     public void onBlockChangeModify(ChangeBlockEvent.Modify event) {
-        User user = event.getCause().get(NamedCause.SOURCE, User.class).orElse(null);
+        User user = getEventUser(event);
         //logger.info("onBlockChangeModify() : user=" + ((user != null)?user.getName():"none"));
         if (user != null) {	// User action?
             for (Transaction<BlockSnapshot> transaction : event.getTransactions()) {
@@ -585,21 +615,19 @@ public class WesterosCraftCore {
     }
     // Handle entity spawns : block drops of apples and saplings by leaves, for example
     @Listener(beforeModifications=true)
-    public void onEntitySpawn(SpawnEntityEvent event) {
+    public void onEntitySpawn(SpawnEntityEvent event, @Root Object source) {
         // Stop item drops
         for (Entity ent : event.getEntities()) {
             if (ent.getType() == EntityTypes.ITEM) {
                 ent.remove();
             }
         }
-    	BlockSpawnCause source = event.getCause().get(NamedCause.SOURCE, BlockSpawnCause.class).orElse(null);
-    	if (source == null) {
-    		return;
-    	}
-    	BlockType type = source.getBlockSnapshot().getState().getType();
-    	// If source of item is leaves
-    	if (stop_block_entity_spawn.contains(type)) {
-    		event.setCancelled(true);
+    	if (source instanceof BlockSnapshot) {
+    		BlockType type = ((BlockSnapshot)source).getState().getType();
+    		// If source of item is leaves
+    		if (stop_block_entity_spawn.contains(type)) {
+    			event.setCancelled(true);
+    		}
     	}
     }
     

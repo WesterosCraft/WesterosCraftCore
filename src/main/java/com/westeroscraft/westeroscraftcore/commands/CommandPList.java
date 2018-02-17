@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.ExecutionException;
 
 import org.slf4j.Logger;
 import org.spongepowered.api.Sponge;
@@ -16,6 +17,7 @@ import org.spongepowered.api.command.args.CommandContext;
 import org.spongepowered.api.command.spec.CommandExecutor;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.service.permission.Subject;
+import org.spongepowered.api.service.permission.SubjectReference;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.Text.Builder;
 import org.spongepowered.api.text.format.TextColors;
@@ -42,14 +44,24 @@ public class CommandPList implements CommandExecutor{
 		Map<String, List<Text>> playersByGroup = new HashMap<String, List<Text>>();
 		
 		for (Player p : Sponge.getServer().getOnlinePlayers()) {
-			List<Subject> grps = p.getParents();
+			List<SubjectReference> grps = p.getParents();
+			SubjectReference best_grp_ref = null;
 			Subject best_grp = null;
-			for (Subject grp : grps) {
-				if (best_grp == null) {
-					best_grp = grp;
+			for (SubjectReference grp : grps) {
+				Subject g = null;
+				try {
+					g = grp.resolve().get();
+				} catch (InterruptedException e) {
+				} catch (ExecutionException e) {
 				}
-				else if (grp.isChildOf(best_grp)) { // Assume child group is more privileged
-					best_grp = grp;
+				if (g == null) continue;
+				if (best_grp == null) {
+					best_grp = g;
+					best_grp_ref = grp;
+				}
+				else if (g.isChildOf(best_grp_ref)) { // Assume child group is more privileged
+					best_grp = g;
+					best_grp_ref = grp;
 				}
 			}
 			String gid = "default";
