@@ -32,10 +32,12 @@ import com.westeroscraft.westeroscraftcore.WesterosCraftCore;
  * @author Mike Primm
  *
  */
-public class CommandPList implements CommandExecutor{
+public class CommandPList implements CommandExecutor {
+	
+	@SuppressWarnings("unused")
 	private Logger logger;
 	
-	public CommandPList(WesterosCraftCore instance){
+	public CommandPList(WesterosCraftCore instance) {
 		logger = instance.getLogger();
 	}
 	

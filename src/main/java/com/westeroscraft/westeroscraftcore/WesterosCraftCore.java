@@ -22,8 +22,6 @@ import org.spongepowered.api.block.tileentity.TileEntity;
 import org.spongepowered.api.block.trait.IntegerTraits;
 import org.spongepowered.api.command.CommandManager;
 import org.spongepowered.api.command.args.GenericArguments;
-import org.spongepowered.api.command.source.CommandBlockSource;
-import org.spongepowered.api.command.source.ConsoleSource;
 import org.spongepowered.api.command.spec.CommandSpec;
 import org.spongepowered.api.config.ConfigDir;
 import org.spongepowered.api.config.DefaultConfig;
@@ -46,7 +44,6 @@ import org.spongepowered.api.event.block.InteractBlockEvent;
 import org.spongepowered.api.event.cause.Cause;
 import org.spongepowered.api.event.cause.EventContext;
 import org.spongepowered.api.event.cause.EventContextKeys;
-import org.spongepowered.api.event.command.SendCommandEvent;
 import org.spongepowered.api.event.entity.InteractEntityEvent;
 import org.spongepowered.api.event.entity.SpawnEntityEvent;
 import org.spongepowered.api.event.filter.cause.Root;
@@ -463,7 +460,8 @@ public class WesterosCraftCore {
 
     @Listener(order = Order.FIRST, beforeModifications = true)
     public void onBlockChangePre(ChangeBlockEvent.Pre event) {
-        Cause c = event.getCause();
+        @SuppressWarnings("unused")
+		Cause c = event.getCause();
         EventContext ctx = event.getContext();
         if (ctx.containsKey(EventContextKeys.LEAVES_DECAY)) {
             event.setCancelled(true);
@@ -514,7 +512,6 @@ public class WesterosCraftCore {
         //logger.info("onBlockChangePlace() : user=" + ((user != null)?user.getName():"none"));
         if (user != null) {
             for (Transaction<BlockSnapshot> transaction : event.getTransactions()) {
-                @SuppressWarnings("unused")
                 BlockType btinit = transaction.getOriginal().getState().getType();
                 BlockSnapshot block = transaction.getFinal();
                 BlockType bt = block.getState().getType();
@@ -563,7 +560,6 @@ public class WesterosCraftCore {
         //logger.info("onBlockChangeModify() : user=" + ((user != null)?user.getName():"none"));
         if (user != null) {	// User action?
             for (Transaction<BlockSnapshot> transaction : event.getTransactions()) {
-                @SuppressWarnings("unused")
                 BlockType btinit = transaction.getOriginal().getState().getType();
                 BlockSnapshot block = transaction.getFinal();
                 BlockType bt = block.getState().getType();
@@ -577,7 +573,6 @@ public class WesterosCraftCore {
         }
         else {	// Else automatic placement of some sort
             for (Transaction<BlockSnapshot> transaction : event.getTransactions()) {
-                @SuppressWarnings("unused")
 				BlockType btinit = transaction.getOriginal().getState().getType();
                 BlockSnapshot block = transaction.getFinal();
                 BlockType bt = block.getState().getType();
