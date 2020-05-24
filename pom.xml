@@ -55,12 +55,12 @@
   </repositories>
   
   
-  <version>0.4-S7.0</version>
+  <version>0.5-S7.1</version>
   <dependencies>
   	<dependency>
   		<groupId>org.spongepowered</groupId>
   		<artifactId>spongeapi</artifactId>
-  		<version>7.0.0</version>
+  		<version>7.1.0</version>
   	</dependency>
   </dependencies>
 </project>

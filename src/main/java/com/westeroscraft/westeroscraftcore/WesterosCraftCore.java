@@ -5,10 +5,12 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
 
+import java.util.UUID;
 import javax.inject.Inject;
 
 import org.slf4j.Logger;
@@ -33,6 +35,7 @@ import org.spongepowered.api.entity.EntityTypes;
 import org.spongepowered.api.entity.hanging.ItemFrame;
 import org.spongepowered.api.entity.hanging.Painting;
 import org.spongepowered.api.entity.living.Living;
+import org.spongepowered.api.entity.living.animal.Horse;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.entity.living.player.User;
 import org.spongepowered.api.entity.living.player.gamemode.GameModes;
@@ -73,6 +76,7 @@ import org.spongepowered.api.world.World;
 import com.westeroscraft.westeroscraftcore.commands.CommandNightvision;
 import com.westeroscraft.westeroscraftcore.commands.CommandPList;
 import com.westeroscraft.westeroscraftcore.commands.CommandWCWhitelist;
+import com.westeroscraft.westeroscraftcore.commands.CommandWCHorse;
 import com.westeroscraft.westeroscraftcore.listeners.ResponseListener;
 
 import ninja.leaping.configurate.commented.CommentedConfigurationNode;
@@ -102,6 +106,9 @@ public class WesterosCraftCore {
     private int max_carrot_grow_size = -1;
     private int max_potato_grow_size = -1;
     
+    // Map of horses by player
+    public HashMap<UUID, Horse> horsesByPlayer = new HashMap<UUID, Horse>();
+
     public boolean server_is_whitelist = false;
     
     private Team builderTeam = null;
@@ -281,6 +288,11 @@ public class WesterosCraftCore {
                 .permission(plugin.getId() + ".whitelist.command")
                 .executor(new CommandWCWhitelist(this))
                 .build(), Arrays.asList("wcwhitelist"));  
+        Sponge.getCommandManager().register(this, CommandSpec.builder()
+                .description(Text.of("Get a horse!"))
+                .permission(plugin.getId() + ".wchorse.command")
+                .executor(new CommandWCHorse(this))
+                .build(), Arrays.asList("wchorse"));  
     }
 
     @Listener
@@ -318,6 +330,12 @@ public class WesterosCraftCore {
                 }
             }
         }
+    }
+
+    @Listener
+    public void onPlayerLogoff(ClientConnectionEvent.Disconnect event) {
+        // When player disconnects, kill their horse, if any
+        killHorseIfNeeded(event.getTargetEntity());
     }
 
     @Listener
@@ -634,6 +652,14 @@ public class WesterosCraftCore {
             if (!user.hasPermission(plugin.getId() + ".blockinteract.blacklist.use")) {
                 event.setCancelled(true);
             }
+        }
+    }
+
+    public void killHorseIfNeeded(Player player) {
+        Horse horse = horsesByPlayer.get(player.getUniqueId());
+        if (horse != null) {
+            horse.remove();
+            horsesByPlayer.remove(player.getUniqueId());
         }
     }
 }
