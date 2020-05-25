@@ -77,6 +77,7 @@ import com.westeroscraft.westeroscraftcore.commands.CommandNightvision;
 import com.westeroscraft.westeroscraftcore.commands.CommandPList;
 import com.westeroscraft.westeroscraftcore.commands.CommandWCWhitelist;
 import com.westeroscraft.westeroscraftcore.commands.CommandWCHorse;
+import com.westeroscraft.westeroscraftcore.commands.CommandWCSkeletonHorse;
 import com.westeroscraft.westeroscraftcore.listeners.ResponseListener;
 
 import ninja.leaping.configurate.commented.CommentedConfigurationNode;
@@ -293,6 +294,11 @@ public class WesterosCraftCore {
                 .permission(plugin.getId() + ".wchorse.command")
                 .executor(new CommandWCHorse(this))
                 .build(), Arrays.asList("wchorse"));  
+            Sponge.getCommandManager().register(this, CommandSpec.builder()
+                .description(Text.of("Get a skeleton horse!"))
+                .permission(plugin.getId() + ".wcskeletonhorse.command")
+                .executor(new CommandWCSkeletonHorse(this))
+                .build(), Arrays.asList("wcskeletonhorse"));  
     }
 
     @Listener

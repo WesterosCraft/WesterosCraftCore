@@ -7,8 +7,10 @@ import org.spongepowered.api.command.CommandSource;
 import org.spongepowered.api.command.args.CommandContext;
 import org.spongepowered.api.command.spec.CommandExecutor;
 import org.spongepowered.api.data.key.Keys;
+import org.spongepowered.api.entity.EntityType;
 import org.spongepowered.api.entity.EntityTypes;
 import org.spongepowered.api.entity.living.animal.Horse;
+import org.spongepowered.api.entity.living.animal.SkeletonHorse;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.event.CauseStackManager.StackFrame;
 import org.spongepowered.api.event.cause.EventContextKeys;
@@ -34,14 +36,22 @@ import com.westeroscraft.westeroscraftcore.WesterosCraftCore;
  */
 public class CommandWCHorse implements CommandExecutor {
 	private WesterosCraftCore core;
+	private EntityType et;
+	private String perm;
+
+	public CommandWCHorse(WesterosCraftCore instance, EntityType et, String perm) {
+		core = instance;
+		this.et = et;
+		this.perm = perm;
+	}
 
 	public CommandWCHorse(WesterosCraftCore instance) {
-		core = instance;
+		this(instance, EntityTypes.HORSE, instance.getPlugin().getId() + ".wchorse.command");
 	}
 
 	@Override
 	public CommandResult execute(CommandSource src, CommandContext args) throws CommandException {
-		args.checkPermission(src, core.getPlugin().getId() + ".wchorse.command");
+		args.checkPermission(src, perm);
 		if (!(src instanceof Player)) {
 			src.sendMessage(Text.of(TextColors.RED, "Need to be a player to summon a horse!"));
 		} else {
@@ -54,7 +64,7 @@ public class CommandWCHorse implements CommandExecutor {
 			//player.sendTitle(title);
 			Location<World> loc = player.getLocation();
 			World w = loc.getExtent();
-			Horse horse = (Horse) w.createEntity(EntityTypes.HORSE, loc.getPosition());
+			Horse horse = (Horse) w.createEntity(et, loc.getPosition());
 			// Make the player the horse's owner
 			org.spongepowered.api.data.value.mutable.OptionalValue<UUID> owner = horse.getValue(Keys.TAMED_OWNER).get();
 			owner.setTo(player.getUniqueId());
