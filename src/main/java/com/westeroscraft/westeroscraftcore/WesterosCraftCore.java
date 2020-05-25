@@ -30,6 +30,8 @@ import org.spongepowered.api.config.DefaultConfig;
 import org.spongepowered.api.data.Transaction;
 import org.spongepowered.api.data.key.Keys;
 import org.spongepowered.api.data.manipulator.mutable.tileentity.SignData;
+import org.spongepowered.api.data.type.HorseColor;
+import org.spongepowered.api.data.type.HorseColors;
 import org.spongepowered.api.entity.Entity;
 import org.spongepowered.api.entity.EntityTypes;
 import org.spongepowered.api.entity.hanging.ItemFrame;
@@ -293,6 +295,8 @@ public class WesterosCraftCore {
                 .description(Text.of("Get a horse!"))
                 .permission(plugin.getId() + ".wchorse.command")
                 .executor(new CommandWCHorse(this))
+                .arguments(GenericArguments.optional(GenericArguments.choices(Text.of("color"), CommandWCHorse.colors, true)),
+                    GenericArguments.optional(GenericArguments.choices(Text.of("pattern"), CommandWCHorse.styles, true)))
                 .build(), Arrays.asList("wchorse"));  
             Sponge.getCommandManager().register(this, CommandSpec.builder()
                 .description(Text.of("Get a skeleton horse!"))

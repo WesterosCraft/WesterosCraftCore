@@ -55,7 +55,7 @@
   </repositories>
   
   
-  <version>0.5-S7.0</version>
+  <version>0.5.1-S7.0</version>
   <dependencies>
   	<dependency>
   		<groupId>org.spongepowered</groupId>
