@@ -13,6 +13,7 @@ import java.util.Set;
 import java.util.UUID;
 import javax.inject.Inject;
 
+import com.westeroscraft.westeroscraftcore.commands.*;
 import org.slf4j.Logger;
 import org.spongepowered.api.GameRegistry;
 import org.spongepowered.api.Sponge;
@@ -38,6 +39,7 @@ import org.spongepowered.api.entity.hanging.ItemFrame;
 import org.spongepowered.api.entity.hanging.Painting;
 import org.spongepowered.api.entity.living.Living;
 import org.spongepowered.api.entity.living.animal.Horse;
+import org.spongepowered.api.entity.living.animal.Wolf;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.entity.living.player.User;
 import org.spongepowered.api.entity.living.player.gamemode.GameModes;
@@ -75,11 +77,6 @@ import org.spongepowered.api.text.format.TextColors;
 import org.spongepowered.api.world.Location;
 import org.spongepowered.api.world.World;
 
-import com.westeroscraft.westeroscraftcore.commands.CommandNightvision;
-import com.westeroscraft.westeroscraftcore.commands.CommandPList;
-import com.westeroscraft.westeroscraftcore.commands.CommandWCWhitelist;
-import com.westeroscraft.westeroscraftcore.commands.CommandWCHorse;
-import com.westeroscraft.westeroscraftcore.commands.CommandWCSkeletonHorse;
 import com.westeroscraft.westeroscraftcore.listeners.ResponseListener;
 
 import ninja.leaping.configurate.commented.CommentedConfigurationNode;
@@ -111,6 +108,9 @@ public class WesterosCraftCore {
     
     // Map of horses by player
     public HashMap<UUID, Horse> horsesByPlayer = new HashMap<UUID, Horse>();
+
+    // Map of wolves by player
+    public HashMap<UUID, Wolf> wolvesByPlayer = new HashMap<UUID, Wolf>();
 
     public boolean server_is_whitelist = false;
     
@@ -302,7 +302,13 @@ public class WesterosCraftCore {
                 .description(Text.of("Get a skeleton horse!"))
                 .permission(plugin.getId() + ".wcskeletonhorse.command")
                 .executor(new CommandWCSkeletonHorse(this))
-                .build(), Arrays.asList("wcskeletonhorse"));  
+                .build(), Arrays.asList("wcskeletonhorse"));
+        Sponge.getCommandManager().register(this, CommandSpec.builder()
+                .description(Text.of("Get a direwolf!"))
+                .permission(plugin.getId() + ".wcwolf.command")
+                .executor(new CommandWCWolf(this))
+                .arguments(GenericArguments.optional(GenericArguments.string(Text.of("name"))))
+                .build(), Arrays.asList("wcwolf"));
     }
 
     @Listener
@@ -344,8 +350,9 @@ public class WesterosCraftCore {
 
     @Listener
     public void onPlayerLogoff(ClientConnectionEvent.Disconnect event) {
-        // When player disconnects, kill their horse, if any
+        // When player disconnects, kill their horse and wolf, if any
         killHorseIfNeeded(event.getTargetEntity());
+        killWolfIfNeeded(event.getTargetEntity());
     }
 
     @Listener
@@ -670,6 +677,14 @@ public class WesterosCraftCore {
         if (horse != null) {
             horse.remove();
             horsesByPlayer.remove(player.getUniqueId());
+        }
+    }
+
+    public void killWolfIfNeeded(Player player) {
+        Wolf wolf = wolvesByPlayer.get(player.getUniqueId());
+        if (wolf != null) {
+            wolf.remove();
+            wolvesByPlayer.remove(player.getUniqueId());
         }
     }
 }
