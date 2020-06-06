@@ -688,4 +688,3 @@ public class WesterosCraftCore {
         }
     }
 }
-
