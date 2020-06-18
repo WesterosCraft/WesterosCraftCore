@@ -51,6 +51,7 @@ import org.spongepowered.api.event.block.InteractBlockEvent;
 import org.spongepowered.api.event.cause.Cause;
 import org.spongepowered.api.event.cause.EventContext;
 import org.spongepowered.api.event.cause.EventContextKeys;
+import org.spongepowered.api.event.cause.entity.spawn.SpawnTypes;
 import org.spongepowered.api.event.entity.InteractEntityEvent;
 import org.spongepowered.api.event.entity.SpawnEntityEvent;
 import org.spongepowered.api.event.filter.cause.Root;
@@ -646,6 +647,10 @@ public class WesterosCraftCore {
     // Handle entity spawns : block drops of apples and saplings by leaves, for example
     @Listener(beforeModifications=true)
     public void onEntitySpawn(SpawnEntityEvent event, @Root Object source) {
+        // Kill all egg spawn types
+        event.getContext().get(EventContextKeys.SPAWN_TYPE).ifPresent(spawnType -> {
+        	if (spawnType == SpawnTypes.SPAWN_EGG) event.setCancelled(true);;
+        });
         // Stop item drops
         for (Entity ent : event.getEntities()) {
             if (ent.getType() == EntityTypes.ITEM) {
