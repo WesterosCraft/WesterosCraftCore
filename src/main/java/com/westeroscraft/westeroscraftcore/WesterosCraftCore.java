@@ -7,6 +7,7 @@ import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
@@ -649,7 +650,12 @@ public class WesterosCraftCore {
     public void onEntitySpawn(SpawnEntityEvent event, @Root Object source) {
         // Kill all egg spawn types
         event.getContext().get(EventContextKeys.SPAWN_TYPE).ifPresent(spawnType -> {
-        	if ((spawnType == SpawnTypes.SPAWN_EGG) || (spawnType == SpawnTypes.BREEDING) || (spawnType == SpawnTypes.MOB_SPAWNER)) event.setCancelled(true);;
+        	List<Entity> ents = event.getEntities();
+        	//logger.info("onEntitySpawn(" + spawnType + ", " + event.getEntities().toString());
+        	if ((spawnType == SpawnTypes.SPAWN_EGG) || (spawnType == SpawnTypes.BREEDING) || 
+        			(spawnType == SpawnTypes.MOB_SPAWNER) || 
+        			((spawnType == SpawnTypes.PLACEMENT) && (ents.size() > 0) &&
+        					ents.get(0).getType() == EntityTypes.EGG)) event.setCancelled(true);;
         });
         // Stop item drops
         for (Entity ent : event.getEntities()) {
