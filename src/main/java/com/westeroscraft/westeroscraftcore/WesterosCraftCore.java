@@ -651,11 +651,14 @@ public class WesterosCraftCore {
         // Kill all egg spawn types
         event.getContext().get(EventContextKeys.SPAWN_TYPE).ifPresent(spawnType -> {
         	List<Entity> ents = event.getEntities();
+        	//System.out.println("onEntitySpawn(" + spawnType + ")");
         	//logger.info("onEntitySpawn(" + spawnType + ", " + event.getEntities().toString());
         	if ((spawnType == SpawnTypes.SPAWN_EGG) || (spawnType == SpawnTypes.BREEDING) || 
         			(spawnType == SpawnTypes.MOB_SPAWNER) || 
         			((spawnType == SpawnTypes.PLACEMENT) && (ents.size() > 0) &&
-        					ents.get(0).getType() == EntityTypes.EGG)) event.setCancelled(true);;
+        					(ents.get(0).getType() == EntityTypes.EGG) ||
+        					 ents.get(0).getType() == EntityTypes.WITHER))
+        		event.setCancelled(true);;
         });
         // Stop item drops
         for (Entity ent : event.getEntities()) {
