@@ -655,9 +655,9 @@ public class WesterosCraftCore {
         	//logger.info("onEntitySpawn(" + spawnType + ", " + event.getEntities().toString());
         	if ((spawnType == SpawnTypes.SPAWN_EGG) || (spawnType == SpawnTypes.BREEDING) || 
         			(spawnType == SpawnTypes.MOB_SPAWNER) || 
-        			((spawnType == SpawnTypes.PLACEMENT) && (ents.size() > 0) &&
-        					(ents.get(0).getType() == EntityTypes.EGG) ||
-        					 ents.get(0).getType() == EntityTypes.WITHER))
+        			((spawnType == SpawnTypes.PLACEMENT) && 
+    					(ents.size() > 0) &&
+    					(ents.get(0).getType() == EntityTypes.EGG || ents.get(0).getType() == EntityTypes.WITHER)))
         		event.setCancelled(true);;
         });
         // Stop item drops
