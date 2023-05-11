@@ -19,7 +19,8 @@
 		"MixinSugarCaneBlock",
 		"MixinTNTBlock",
 		"MixinVineBlock",
-		"MixinPrimedTnt"
+		"MixinPrimedTnt",
+		"MixinMinecartTNT"
 	],
 	"client": [ 
 	],
