@@ -1,0 +1,28 @@
+modLoader="javafml" #mandatory
+loaderVersion="[40,)" #mandatory This is typically bumped every Minecraft version by Forge. See our download page for lists of versions.
+license="Apache Public License v2"
+[[mods]] #mandatory
+modId="westeroscraftcore" #mandatory
+version="${version}" #mandatory
+displayName="WesterosCraftCore" #mandatory
+displayURL="https://www.westeroscraft.com/" #optional
+# A file name (in the root of the mod JAR) containing a logo for display
+logoFile="westeroscraftcore.jpg" #optional
+# A text field displayed in the mod UI
+authors="mikeprimm" #optional
+credits="Design and code by mikeprimm"
+description='''
+This mod provides the customized block behaviors for WesterosCraft
+'''
+[[dependencies.westeroscraftcore]] #optional
+    modId="forge" #mandatory
+    mandatory=true #mandatory
+    versionRange="[40,)" #mandatory
+    ordering="NONE"
+    side="BOTH"
+[[dependencies.westeroscraftcore]]
+    modId="minecraft"
+    mandatory=true
+    versionRange="[1.18.2,1.19)"
+    ordering="NONE"
+    side="BOTH"

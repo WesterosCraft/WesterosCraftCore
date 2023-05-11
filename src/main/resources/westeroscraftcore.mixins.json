@@ -1,0 +1,16 @@
+{
+	"required": true,
+	"package": "com.westeroscraft.westeroscraftcore.mixin",
+	"compatibilityLevel": "JAVA_17",
+	"refmap": "westeroscraftcore.refmap.json",
+	"mixins": [
+		"MixinIceBlock",
+		"MixinSnowLayerBlock",
+		"MixinLeavesBlock",
+		"MixinFrostedIceBlock",
+		"MixinSpreadingSnowyDirtBlock"
+	],
+	"client": [ 
+	],
+	"minVersion": "0.8"
+}
