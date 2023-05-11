@@ -1,6 +1,5 @@
 package com.westeroscraft.westeroscraftcore;
 
-import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.CrashReport;
 import net.minecraft.ReportedException;
 import net.minecraftforge.common.ForgeConfigSpec;
@@ -18,8 +17,6 @@ import net.minecraftforge.fml.loading.FMLPaths;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-
-import com.mojang.brigadier.CommandDispatcher;
 
 import java.io.IOException;
 import java.nio.file.FileAlreadyExistsException;
@@ -75,7 +72,7 @@ public class WesterosCraftCore {
 
 	@SubscribeEvent
 	public void onRegisterCommandEvent(RegisterCommandsEvent event) {
-	    CommandDispatcher<CommandSourceStack> commandDispatcher = event.getDispatcher();
+	    //CommandDispatcher<CommandSourceStack> commandDispatcher = event.getDispatcher();
 		//PTimeCommand.register(commandDispatcher);
 		//PWeatherCommand.register(commandDispatcher);
 	}
@@ -96,6 +93,7 @@ public class WesterosCraftCore {
 	public static class Config {
 		public static final ForgeConfigSpec.Builder BUILDER = new ForgeConfigSpec.Builder();
 		public static final ForgeConfigSpec SPEC;
+		public static final ForgeConfigSpec.BooleanValue debugLog;
 		public static final ForgeConfigSpec.BooleanValue disableIceMelt;
 		public static final ForgeConfigSpec.BooleanValue disableSnowMelt;
 		public static final ForgeConfigSpec.BooleanValue disableLeafFade;
@@ -120,6 +118,7 @@ public class WesterosCraftCore {
 
 		static {
 			BUILDER.comment("Module options");
+			debugLog = BUILDER.comment("Debug logging").define("debugLog", false);
 			disableIceMelt = BUILDER.comment("Disable ice melting").define("disableIceMelt", true);
 			disableSnowMelt = BUILDER.comment("Disable snow melting").define("disableSnowMelt", true);
 			disableLeafFade = BUILDER.comment("Disable leaf fading").define("disableLeafFade", true);
@@ -147,5 +146,9 @@ public class WesterosCraftCore {
 
     @SubscribeEvent
     public void onCommonSetupEvent(FMLCommonSetupEvent event) {
+    }
+    
+    public static void debugLog(String msg) {
+    	if (Config.debugLog.get()) { log.info(msg); }
     }
 }

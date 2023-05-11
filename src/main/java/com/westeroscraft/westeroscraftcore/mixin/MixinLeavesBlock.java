@@ -2,7 +2,6 @@ package com.westeroscraft.westeroscraftcore.mixin;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.level.block.IceBlock;
 import net.minecraft.world.level.block.LeavesBlock;
 import net.minecraft.world.level.block.state.BlockState;
 
@@ -26,7 +25,7 @@ public abstract class MixinLeavesBlock
 	@Inject(method = "randomTick(Lnet/minecraft/world/level/block/state/BlockState;Lnet/minecraft/server/level/ServerLevel;Lnet/minecraft/core/BlockPos;Ljava/util/Random;)V", at = @At("HEAD"), cancellable=true)	
     private void doRandomTick(BlockState bs, ServerLevel lvl, BlockPos pos, Random rnd, CallbackInfo ci) {
 		if (WesterosCraftCore.Config.disableLeafFade.get()) {
-			WesterosCraftCore.log.info("Cancelled leaves fade");
+			WesterosCraftCore.debugLog("Cancelled leaves fade");
 			ci.cancel();
 		}
 	}
@@ -34,7 +33,7 @@ public abstract class MixinLeavesBlock
 	@Inject(method = "isRandomlyTicking(Lnet/minecraft/world/level/block/state/BlockState;)Z", at = @At("HEAD"), cancellable=true)	
     private void doIsRandomlyTicking(BlockState bs, CallbackInfoReturnable<Boolean> ci) {
 		if (WesterosCraftCore.Config.disableLeafFade.get()) {
-			WesterosCraftCore.log.info("Cancelled leaves fade ticking");
+			WesterosCraftCore.debugLog("Cancelled leaves fade ticking");
 			ci.setReturnValue(false);
 		}
 	}

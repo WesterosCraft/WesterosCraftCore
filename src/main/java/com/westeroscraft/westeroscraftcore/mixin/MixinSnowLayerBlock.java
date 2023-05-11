@@ -2,7 +2,6 @@ package com.westeroscraft.westeroscraftcore.mixin;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.level.block.IceBlock;
 import net.minecraft.world.level.block.SnowLayerBlock;
 import net.minecraft.world.level.block.state.BlockState;
 
@@ -26,7 +25,7 @@ public abstract class MixinSnowLayerBlock
 	@Inject(method = "randomTick(Lnet/minecraft/world/level/block/state/BlockState;Lnet/minecraft/server/level/ServerLevel;Lnet/minecraft/core/BlockPos;Ljava/util/Random;)V", at = @At("HEAD"), cancellable=true)	
     private void doRandomTick(BlockState bs, ServerLevel lvl, BlockPos pos, Random rnd, CallbackInfo ci) {
 		if (WesterosCraftCore.Config.disableSnowMelt.get()) {
-			WesterosCraftCore.log.info("Cancelled snow layer melt");
+			WesterosCraftCore.debugLog("Cancelled snow layer melt");
 			ci.cancel();
 		}
 	}

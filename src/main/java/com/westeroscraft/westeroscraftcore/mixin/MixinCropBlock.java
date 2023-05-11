@@ -3,10 +3,7 @@ package com.westeroscraft.westeroscraftcore.mixin;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.LevelReader;
-import net.minecraft.world.level.block.BambooBlock;
 import net.minecraft.world.level.block.CropBlock;
-import net.minecraft.world.level.block.IceBlock;
-import net.minecraft.world.level.block.LeavesBlock;
 import net.minecraft.world.level.block.state.BlockState;
 
 import java.util.Random;
@@ -30,7 +27,7 @@ public abstract class MixinCropBlock
 	@Inject(method = "randomTick(Lnet/minecraft/world/level/block/state/BlockState;Lnet/minecraft/server/level/ServerLevel;Lnet/minecraft/core/BlockPos;Ljava/util/Random;)V", at = @At("HEAD"), cancellable=true)	
     private void doRandomTick(BlockState bs, ServerLevel lvl, BlockPos pos, Random rnd, CallbackInfo ci) {
 		if (WesterosCraftCore.Config.disableCropGrowFade.get()) {
-			WesterosCraftCore.log.info("Cancelled crop grow/fade rand ticking");
+			WesterosCraftCore.debugLog("Cancelled crop grow/fade rand ticking");
 			ci.cancel();
 		}
 	}
@@ -38,7 +35,7 @@ public abstract class MixinCropBlock
 	@Inject(method = "isRandomlyTicking(Lnet/minecraft/world/level/block/state/BlockState;)Z", at = @At("HEAD"), cancellable=true)	
     private void doIsRandomlyTicking(BlockState bs, CallbackInfoReturnable<Boolean> ci) {
 		if (WesterosCraftCore.Config.disableCropGrowFade.get()) {
-			WesterosCraftCore.log.info("Cancelled crop grow/fade tick");
+			WesterosCraftCore.debugLog("Cancelled crop grow/fade tick");
 			ci.setReturnValue(false);
 		}
 	}
@@ -46,7 +43,7 @@ public abstract class MixinCropBlock
 	@Inject(method = "canSurvive(Lnet/minecraft/world/level/block/state/BlockState;Lnet/minecraft/world/level/LevelReader;Lnet/minecraft/core/BlockPos;)Z", at = @At("HEAD"), cancellable=true)	
     private void doCanSurvive(BlockState bs, LevelReader lvl, BlockPos pos, CallbackInfoReturnable<Boolean> ci) {
 		if (WesterosCraftCore.Config.cropSurviveAny.get()) {
-			WesterosCraftCore.log.info("Allow crop survive");
+			WesterosCraftCore.debugLog("Allow crop survive");
 			ci.setReturnValue(true);
 		}
 	}

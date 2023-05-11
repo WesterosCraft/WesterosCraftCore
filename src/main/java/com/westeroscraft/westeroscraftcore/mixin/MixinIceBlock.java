@@ -23,7 +23,7 @@ public abstract class MixinIceBlock
 	@Inject(method = "melt(Lnet/minecraft/world/level/block/state/BlockState;Lnet/minecraft/world/level/Level;Lnet/minecraft/core/BlockPos;)V", at = @At("HEAD"), cancellable=true)	
 	private void doMelt(BlockState bs, Level lvl, BlockPos pos, CallbackInfo ci) {
 		if (WesterosCraftCore.Config.disableIceMelt.get()) {
-			WesterosCraftCore.log.info("Cancelled ice melt");
+			WesterosCraftCore.debugLog("Cancelled ice melt");
 			ci.cancel();
 		}
 	}
