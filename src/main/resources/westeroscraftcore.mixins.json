@@ -7,8 +7,18 @@
 		"MixinIceBlock",
 		"MixinSnowLayerBlock",
 		"MixinLeavesBlock",
+		"MixinBambooBlock",
 		"MixinFrostedIceBlock",
-		"MixinSpreadingSnowyDirtBlock"
+		"MixinSpreadingSnowyDirtBlock",
+		"MixinCropBlock",
+		"MixinCactusBlock",
+		"MixinGrowingPlantHeadBlock",
+		"MixinMushroomBlock",
+		"MixinNetherWartBlock",
+		"MixinStemBlock",
+		"MixinSugarCaneBlock",
+		"MixinTNTBlock",
+		"MixinVineBlock"
 	],
 	"client": [ 
 	],

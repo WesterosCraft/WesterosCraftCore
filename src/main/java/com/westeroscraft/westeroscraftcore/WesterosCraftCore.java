@@ -100,6 +100,23 @@ public class WesterosCraftCore {
 		public static final ForgeConfigSpec.BooleanValue disableSnowMelt;
 		public static final ForgeConfigSpec.BooleanValue disableLeafFade;
 		public static final ForgeConfigSpec.BooleanValue disableGrassFadeSpread;
+		public static final ForgeConfigSpec.BooleanValue disableBambooFadeSpread;
+		public static final ForgeConfigSpec.BooleanValue bambooSurviveAny;
+		public static final ForgeConfigSpec.BooleanValue disableCropGrowFade;
+		public static final ForgeConfigSpec.BooleanValue cropSurviveAny;
+		public static final ForgeConfigSpec.BooleanValue disableCactusGrowFade;
+		public static final ForgeConfigSpec.BooleanValue cactusSurviveAny;
+		public static final ForgeConfigSpec.BooleanValue disablePlantGrowFade;
+		public static final ForgeConfigSpec.BooleanValue plantSurviveAny;
+		public static final ForgeConfigSpec.BooleanValue disableMushroomGrowFade;
+		public static final ForgeConfigSpec.BooleanValue mushroomSurviveAny;
+		public static final ForgeConfigSpec.BooleanValue disableNetherWartGrowFade;
+		public static final ForgeConfigSpec.BooleanValue disableStemGrowFade;
+		public static final ForgeConfigSpec.BooleanValue disableSugarCaneGrowFade;
+		public static final ForgeConfigSpec.BooleanValue sugarCaneSurviveAny;
+		public static final ForgeConfigSpec.BooleanValue disableTNTExplode;
+		public static final ForgeConfigSpec.BooleanValue disableVineGrowFade;
+		public static final ForgeConfigSpec.BooleanValue vineSurviveAny;
 
 		static {
 			BUILDER.comment("Module options");
@@ -107,6 +124,23 @@ public class WesterosCraftCore {
 			disableSnowMelt = BUILDER.comment("Disable snow melting").define("disableSnowMelt", true);
 			disableLeafFade = BUILDER.comment("Disable leaf fading").define("disableLeafFade", true);
 			disableGrassFadeSpread = BUILDER.comment("Disable grass fade/spread").define("disableGrassFadeSpread", true);
+			disableBambooFadeSpread = BUILDER.comment("Disable bamboo fade/spread").define("disableBambooFadeSpread", true);
+			bambooSurviveAny = BUILDER.comment("Allow bamboo survive on any surface").define("bambooSurviveAny", true);
+			disableCropGrowFade = BUILDER.comment("Disable crop grow/fade").define("disableCropGrowFade", true);
+			cropSurviveAny = BUILDER.comment("Allow crop survive on any surface").define("cropSurviveAny", true);
+			disableCactusGrowFade = BUILDER.comment("Disable cactus grow/fade").define("disableCactusGrowFade", true);
+			cactusSurviveAny = BUILDER.comment("Allow cactus survive on any surface").define("cactusSurviveAny", true);
+			disablePlantGrowFade = BUILDER.comment("Disable plant grow/fade").define("disablePlantGrowFade", true);
+			plantSurviveAny = BUILDER.comment("Allow plant survive on any surface").define("plantSurviveAny", true);
+			disableMushroomGrowFade = BUILDER.comment("Disable mushroom grow/fade").define("disableMushroomGrowFade", true);
+			mushroomSurviveAny = BUILDER.comment("Allow mushroom survive on any surface").define("mushroomSurviveAny", true);
+			disableNetherWartGrowFade = BUILDER.comment("Disable netherwart grow/fade").define("disableBetherWartGrowFade", true);
+			disableStemGrowFade = BUILDER.comment("Disable stem grow/fade").define("disableStemGrowFade", true);
+			disableSugarCaneGrowFade = BUILDER.comment("Disable sugar cane grow/fade").define("disableSugarCaneGrowFade", true);
+			sugarCaneSurviveAny = BUILDER.comment("Allow sugar cane survive on any surface").define("sugarCaneSurviveAny", true);
+			disableTNTExplode = BUILDER.comment("Disable TNT explode").define("disableTNTExplode", true);
+			disableVineGrowFade = BUILDER.comment("Disable vine grow/fade").define("disablevineGrowFade", true);
+			vineSurviveAny = BUILDER.comment("Allow vine survive on any surface").define("vineSurviveAny", true);
 			SPEC = BUILDER.build();
 		}
 	}
