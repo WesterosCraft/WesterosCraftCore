@@ -3,10 +3,11 @@ package com.westeroscraft.westeroscraftcore;
 import net.minecraft.CrashReport;
 import net.minecraft.ReportedException;
 import net.minecraft.core.BlockPos;
-import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.DoorBlock;
+import net.minecraft.world.level.block.FenceGateBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraftforge.common.ForgeConfigSpec;
@@ -42,8 +43,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import javax.annotation.Nullable;
-
 import java.util.Set;
 
 import net.minecraft.resources.ResourceLocation;
@@ -62,14 +61,15 @@ public class WesterosCraftCore {
 	public static Path modConfigPath;
 
 	public static Block[] autoRestoreDoors = new Block[0];
+	public static Block[] autoRestoreGates = new Block[0];
 	private static boolean ticking = false;
 	private static int ticks = 0;
 	private static long secCount = 0;
 	
-	private static class PendingDoorRestore {
+	private static class PendingRestore {
 		BlockPos pos;
 		Level world;
-		PendingDoorRestore(Level lvl, BlockPos p) {
+		PendingRestore(Level lvl, BlockPos p) {
 			this.world = lvl;
 			this.pos = p;
 		}
@@ -79,8 +79,8 @@ public class WesterosCraftCore {
 		}
 		@Override
 		public boolean equals(Object o) {
-			if (o instanceof PendingDoorRestore) {
-				PendingDoorRestore pdo = (PendingDoorRestore) o;
+			if (o instanceof PendingRestore) {
+				PendingRestore pdo = (PendingRestore) o;
 				return (pdo.world == this.world) && (pdo.pos.asLong() == this.pos.asLong()); 
 			}
 			return false;
@@ -90,7 +90,8 @@ public class WesterosCraftCore {
 		long secCount;
 		Boolean open;
 	};
-	private static Map<PendingDoorRestore, RestoreInfo> pendingDoorRestore = new HashMap<PendingDoorRestore, RestoreInfo>();
+	private static Map<PendingRestore, RestoreInfo> pendingDoorRestore = new HashMap<PendingRestore, RestoreInfo>();
+	private static Map<PendingRestore, RestoreInfo> pendingGateRestore = new HashMap<PendingRestore, RestoreInfo>();
 	
 	public WesterosCraftCore() {
 		// Register the doClientStuff method for modloading
@@ -134,8 +135,10 @@ public class WesterosCraftCore {
 
 	@SubscribeEvent
 	public void serverStopping(ServerStoppingEvent event) {
-    	// Handle any pending door closes (force immediate)
+    	// Handle any pending door restores (force immediate)
     	handlePendingDoorRestores(true);
+    	// Handle any pending gate restores (force immediate)
+    	handlePendingGateRestores(true);
 		
 	}
 	
@@ -145,8 +148,10 @@ public class WesterosCraftCore {
         ticks++;
         if (ticks >= 20) {
         	secCount++;
-        	// Handle any pending door closes
+        	// Handle any pending door restores
         	handlePendingDoorRestores(false);
+        	// Handle any pending gate restores
+        	handlePendingGateRestores(false);
         	
         	ticks = 0;
         }
@@ -165,6 +170,18 @@ public class WesterosCraftCore {
 			}
 		}
 		autoRestoreDoors = dlist.toArray(new Block[0]);
+		List<Block> glist = new ArrayList<Block>();
+		for (String bn : Config.autoRestoreGates.get()) {
+			ResourceLocation br = new ResourceLocation(bn);
+			Block blk = ForgeRegistries.BLOCKS.getValue(br);
+			if ((blk != null) && (blk instanceof FenceGateBlock)) {
+				glist.add(blk);
+			}
+			else {
+				log.warn("Invalid fence gate block name: " + bn);
+			}
+		}
+		autoRestoreGates = glist.toArray(new Block[0]);
 		// We're ready to handle delayed actions
 		ticking = true;
 	}
@@ -206,6 +223,8 @@ public class WesterosCraftCore {
 		public static final ForgeConfigSpec.ConfigValue<List<? extends String>> autoRestoreDoors;
 		public static final ForgeConfigSpec.IntValue autoRestoreTime;
 		public static final ForgeConfigSpec.BooleanValue autoRestoreAllDoors;
+		public static final ForgeConfigSpec.ConfigValue<List<? extends String>> autoRestoreGates;
+		public static final ForgeConfigSpec.BooleanValue autoRestoreAllGates;
 
 		static {
 			BUILDER.comment("Module options");
@@ -241,6 +260,9 @@ public class WesterosCraftCore {
             		Arrays.asList(), entry -> true);
             autoRestoreTime = BUILDER.comment("Number of seconds before auto-restore").defineInRange("autoRestoreTime", 30, 5, 300);
             autoRestoreAllDoors = BUILDER.comment("Auto restore all door blocks").define("autoRestoreAllDoors", false);
+            autoRestoreGates = BUILDER.comment("Which fence gate blocks to auto-restore open state (when changed by non-creative mode players)").defineList("autoRestoreGates", 
+            		Arrays.asList(), entry -> true);
+            autoRestoreAllGates = BUILDER.comment("Auto restore all gate blocks").define("autoRestoreAllGates", false);
             BUILDER.pop();
 			SPEC = BUILDER.build();
 		}
@@ -257,15 +279,22 @@ public class WesterosCraftCore {
     	if (Config.debugRestore.get()) { log.info(msg); }
     }
     
-    public static boolean isAutoCloseDoor(Block blk) {
+    public static boolean isAutoRestoreDoor(Block blk) {
     	if (WesterosCraftCore.Config.autoRestoreAllDoors.get()) return true;
     	for (int i = 0; i < autoRestoreDoors.length; i++) {
     		if (autoRestoreDoors[i] == blk) return true;
     	}
     	return false;
     }
+    public static boolean isAutoRestoreGate(Block blk) {
+    	if (WesterosCraftCore.Config.autoRestoreAllGates.get()) return true;
+    	for (int i = 0; i < autoRestoreGates.length; i++) {
+    		if (autoRestoreGates[i] == blk) return true;
+    	}
+    	return false;
+    }
     public static void setPendingDoorRestore(Level world, BlockPos pos, boolean isOpen, boolean isCreative) {
-    	PendingDoorRestore pdc = new PendingDoorRestore(world, pos);
+    	PendingRestore pdc = new PendingRestore(world, pos);
     	RestoreInfo ri = pendingDoorRestore.get(pdc);
     	if ((ri == null) && (!isCreative)) {	// New one, and not creative mode, add record
     		ri = new RestoreInfo();
@@ -285,23 +314,70 @@ public class WesterosCraftCore {
     		}
     	}
     }
+    public static void setPendingGateRestore(Level world, BlockPos pos, boolean isOpen, boolean isCreative) {
+    	PendingRestore pdc = new PendingRestore(world, pos);
+    	RestoreInfo ri = pendingGateRestore.get(pdc);
+    	if ((ri == null) && (!isCreative)) {	// New one, and not creative mode, add record
+    		ri = new RestoreInfo();
+    		ri.open = isOpen; ri.secCount = secCount + WesterosCraftCore.Config.autoRestoreTime.get();
+    		pendingGateRestore.put(pdc, ri);
+    		debugRestoreLog("Set gate restore for " + pos + " = " + isOpen);
+    	}
+    	// Else, if restore record pending, but creative change, drop it
+    	else if (ri != null) {
+    		if (isCreative) {
+    			pendingGateRestore.remove(pdc);
+    			debugRestoreLog("Drop gate restore for " + pos);
+    		}
+    		else {	// Else, reset restore time
+    			ri.secCount = secCount + WesterosCraftCore.Config.autoRestoreTime.get();
+        		debugRestoreLog("Update gate restore for " + pos + " = " + ri.open);
+    		}
+    	}
+    }
     public static void handlePendingDoorRestores(boolean now) {
     	// Handle pending door close checks
-    	Set<Entry<PendingDoorRestore, RestoreInfo>> kvset = pendingDoorRestore.entrySet();
-    	Iterator<Entry<PendingDoorRestore, RestoreInfo>> iter = kvset.iterator();	// So that we can remove during iteration
+    	Set<Entry<PendingRestore, RestoreInfo>> kvset = pendingDoorRestore.entrySet();
+    	Iterator<Entry<PendingRestore, RestoreInfo>> iter = kvset.iterator();	// So that we can remove during iteration
     	while (iter.hasNext()) {
-    		Entry<PendingDoorRestore, RestoreInfo> kv = iter.next();
-			PendingDoorRestore pdc = kv.getKey();
+    		Entry<PendingRestore, RestoreInfo> kv = iter.next();
+			PendingRestore pdc = kv.getKey();
     		RestoreInfo ri = kv.getValue();
     		if (now || (ri.secCount <= secCount)) {
     			BlockState bs = pdc.world.getBlockState(pdc.pos);	// Get the block state
     			if (bs != null) {
     				Block blk = bs.getBlock();
-    				if ((blk instanceof DoorBlock) && isAutoCloseDoor(blk)) {	// Still right type of door
+    				if ((blk instanceof DoorBlock) && isAutoRestoreDoor(blk)) {	// Still right type of door
     					if (bs.getValue(DoorBlock.OPEN) != ri.open) {	// And still wrong state?
     		        		debugRestoreLog("setting " + kv.getKey().pos + " to " + ri.open);
     						DoorBlock dblk = (DoorBlock)blk;
     						dblk.setOpen(null, pdc.world, bs, pdc.pos, ri.open);
+    					}
+    				}
+    			}
+    			iter.remove();	// And remove it from the set
+    		}	
+    	}
+    }
+    public static void handlePendingGateRestores(boolean now) {
+    	// Handle pending gate close checks
+    	Set<Entry<PendingRestore, RestoreInfo>> kvset = pendingGateRestore.entrySet();
+    	Iterator<Entry<PendingRestore, RestoreInfo>> iter = kvset.iterator();	// So that we can remove during iteration
+    	while (iter.hasNext()) {
+    		Entry<PendingRestore, RestoreInfo> kv = iter.next();
+			PendingRestore pdc = kv.getKey();
+    		RestoreInfo ri = kv.getValue();
+    		if (now || (ri.secCount <= secCount)) {
+    			BlockState bs = pdc.world.getBlockState(pdc.pos);	// Get the block state
+    			if (bs != null) {
+    				Block blk = bs.getBlock();
+    				if ((blk instanceof FenceGateBlock) && isAutoRestoreGate(blk)) {	// Still right type of door
+    					if (bs.getValue(FenceGateBlock.OPEN) != ri.open) {	// And still wrong state?
+    		        		debugRestoreLog("setting " + kv.getKey().pos + " to " + ri.open);
+    						bs = bs.setValue(FenceGateBlock.OPEN, ri.open);
+    						pdc.world.setBlock(pdc.pos, bs, 10);
+    						pdc.world.levelEvent((Player)null, ri.open ? 1008 : 1014, pdc.pos, 0);
+    						pdc.world.gameEvent(ri.open ? GameEvent.BLOCK_OPEN : GameEvent.BLOCK_CLOSE, pdc.pos);
     					}
     				}
     			}
