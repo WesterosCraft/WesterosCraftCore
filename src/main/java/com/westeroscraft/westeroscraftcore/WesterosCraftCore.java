@@ -196,6 +196,7 @@ public class WesterosCraftCore {
 		public static final ForgeConfigSpec.BooleanValue vineSurviveAny;
 		public static final ForgeConfigSpec.ConfigValue<List<? extends String>> autoCloseDoors;
 		public static final ForgeConfigSpec.IntValue autoCloseTime;
+		public static final ForgeConfigSpec.BooleanValue autoCloseAll;
 
 		static {
 			BUILDER.comment("Module options");
@@ -230,6 +231,7 @@ public class WesterosCraftCore {
             		Arrays.asList("minecraft:oak_door","minecraft:spruce_door","minecraft:birch_door","minecraft:jungle_door",
             	    "minecraft:acacia_door","minecraft:dark_oak_door","minecraft:crimson_door","minecraft:warped_door"), entry -> true);
             autoCloseTime = BUILDER.comment("Number of seconds before auto-close").defineInRange("autoCloseTime", 30, 5, 300);
+            autoCloseAll = BUILDER.comment("Auto close all door blocks").define("autoCloseAll", false);
             BUILDER.pop();
 			SPEC = BUILDER.build();
 		}
@@ -244,6 +246,7 @@ public class WesterosCraftCore {
     }
     
     public static boolean isAutoCloseDoor(Block blk) {
+    	if (WesterosCraftCore.Config.autoCloseAll.get()) return true;
     	for (int i = 0; i < autoCloseDoors.length; i++) {
     		if (autoCloseDoors[i] == blk) return true;
     	}

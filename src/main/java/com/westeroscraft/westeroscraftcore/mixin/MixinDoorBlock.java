@@ -32,6 +32,8 @@ public abstract class MixinDoorBlock
 
 	@Inject(method = "use(Lnet/minecraft/world/level/block/state/BlockState;Lnet/minecraft/world/level/Level;Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/entity/player/Player;Lnet/minecraft/world/InteractionHand;Lnet/minecraft/world/phys/BlockHitResult;)Lnet/minecraft/world/InteractionResult;", at = @At("RETURN"))	
 	private void doUse(BlockState state, Level world, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hitrslt, CallbackInfoReturnable<InteractionResult> ci) {
+		// If no action, just return
+		if (ci.getReturnValue() == InteractionResult.PASS) return;
 		// Is this a door we should be planning to close
 		if (WesterosCraftCore.isAutoCloseDoor(state.getBlock())) {
 			WesterosCraftCore.debugLog("Is auto close door");
