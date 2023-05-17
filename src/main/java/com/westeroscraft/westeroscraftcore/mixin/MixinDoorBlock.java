@@ -1,23 +1,17 @@
 package com.westeroscraft.westeroscraftcore.mixin;
 
 import net.minecraft.core.BlockPos;
-import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.LevelReader;
-import net.minecraft.world.level.block.BambooBlock;
 import net.minecraft.world.level.block.DoorBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 
-import java.util.Random;
-
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import com.westeroscraft.westeroscraftcore.WesterosCraftCore;
@@ -36,12 +30,9 @@ public abstract class MixinDoorBlock
 		if (ci.getReturnValue() == InteractionResult.PASS) return;
 		// Is this a door we should be planning to close
 		if (WesterosCraftCore.isAutoCloseDoor(state.getBlock())) {
-			WesterosCraftCore.debugLog("Is auto close door");
-			BlockState newstate = world.getBlockState(pos);	// Get new state
-			if (newstate.getValue(DoorBlock.OPEN)) {	// If it is opened, we should plan to close it with tick hander
-				WesterosCraftCore.debugLog("And it is now open");
-				WesterosCraftCore.setPendingDoorClose(world, pos);
-			}
+			WesterosCraftCore.debugRestoreLog("Is auto close door");
+			boolean isCreative = (player != null) ? player.isCreative() : false;
+			WesterosCraftCore.setPendingDoorRestore(world, pos, !state.getValue(DoorBlock.OPEN), isCreative);
 		}
 	}
 }

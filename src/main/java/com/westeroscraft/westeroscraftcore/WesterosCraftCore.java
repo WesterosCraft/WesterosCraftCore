@@ -61,28 +61,36 @@ public class WesterosCraftCore {
 
 	public static Path modConfigPath;
 
-	public static Block[] autoCloseDoors = new Block[0];
+	public static Block[] autoRestoreDoors = new Block[0];
 	private static boolean ticking = false;
 	private static int ticks = 0;
 	private static long secCount = 0;
 	
-	private static class PendingDoorClose {
+	private static class PendingDoorRestore {
 		BlockPos pos;
 		Level world;
+		PendingDoorRestore(Level lvl, BlockPos p) {
+			this.world = lvl;
+			this.pos = p;
+		}
 		@Override
 		public int hashCode() {
 			return pos.hashCode() ^ world.hashCode();
 		}
 		@Override
 		public boolean equals(Object o) {
-			if (o instanceof PendingDoorClose) {
-				PendingDoorClose pdo = (PendingDoorClose) o;
+			if (o instanceof PendingDoorRestore) {
+				PendingDoorRestore pdo = (PendingDoorRestore) o;
 				return (pdo.world == this.world) && (pdo.pos.asLong() == this.pos.asLong()); 
 			}
 			return false;
 		}
 	};
-	private static Map<PendingDoorClose, Long> pendingDoorClose = new HashMap<PendingDoorClose, Long>();
+	private static class RestoreInfo {
+		long secCount;
+		Boolean open;
+	};
+	private static Map<PendingDoorRestore, RestoreInfo> pendingDoorRestore = new HashMap<PendingDoorRestore, RestoreInfo>();
 	
 	public WesterosCraftCore() {
 		// Register the doClientStuff method for modloading
@@ -127,7 +135,7 @@ public class WesterosCraftCore {
 	@SubscribeEvent
 	public void serverStopping(ServerStoppingEvent event) {
     	// Handle any pending door closes (force immediate)
-    	handlePendingDoorCloses(true);
+    	handlePendingDoorRestores(true);
 		
 	}
 	
@@ -138,7 +146,7 @@ public class WesterosCraftCore {
         if (ticks >= 20) {
         	secCount++;
         	// Handle any pending door closes
-        	handlePendingDoorCloses(false);
+        	handlePendingDoorRestores(false);
         	
         	ticks = 0;
         }
@@ -146,7 +154,7 @@ public class WesterosCraftCore {
 	private void loadComplete(final FMLLoadCompleteEvent event) // PostRegistrationEven
 	{
 		List<Block> dlist = new ArrayList<Block>();
-		for (String bn : Config.autoCloseDoors.get()) {
+		for (String bn : Config.autoRestoreDoors.get()) {
 			ResourceLocation br = new ResourceLocation(bn);
 			Block blk = ForgeRegistries.BLOCKS.getValue(br);
 			if ((blk != null) && (blk instanceof DoorBlock)) {
@@ -156,7 +164,7 @@ public class WesterosCraftCore {
 				log.warn("Invalid door block name: " + bn);
 			}
 		}
-		autoCloseDoors = dlist.toArray(new Block[0]);
+		autoRestoreDoors = dlist.toArray(new Block[0]);
 		// We're ready to handle delayed actions
 		ticking = true;
 	}
@@ -173,6 +181,7 @@ public class WesterosCraftCore {
 		public static final ForgeConfigSpec.Builder BUILDER = new ForgeConfigSpec.Builder();
 		public static final ForgeConfigSpec SPEC;
 		public static final ForgeConfigSpec.BooleanValue debugLog;
+		public static final ForgeConfigSpec.BooleanValue debugRestore;
 		public static final ForgeConfigSpec.BooleanValue disableIceMelt;
 		public static final ForgeConfigSpec.BooleanValue disableSnowMelt;
 		public static final ForgeConfigSpec.BooleanValue disableLeafFade;
@@ -194,14 +203,15 @@ public class WesterosCraftCore {
 		public static final ForgeConfigSpec.BooleanValue disableTNTExplode;
 		public static final ForgeConfigSpec.BooleanValue disableVineGrowFade;
 		public static final ForgeConfigSpec.BooleanValue vineSurviveAny;
-		public static final ForgeConfigSpec.ConfigValue<List<? extends String>> autoCloseDoors;
-		public static final ForgeConfigSpec.IntValue autoCloseTime;
-		public static final ForgeConfigSpec.BooleanValue autoCloseAll;
+		public static final ForgeConfigSpec.ConfigValue<List<? extends String>> autoRestoreDoors;
+		public static final ForgeConfigSpec.IntValue autoRestoreTime;
+		public static final ForgeConfigSpec.BooleanValue autoRestoreAllDoors;
 
 		static {
 			BUILDER.comment("Module options");
 			BUILDER.push("debug");
 			debugLog = BUILDER.comment("Debug logging").define("debugLog", false);
+			debugRestore= BUILDER.comment("Debug block restore logging").define("debugRestore", false);
 			BUILDER.pop();
 			BUILDER.push("blockBehaviors");
 			disableIceMelt = BUILDER.comment("Disable ice melting").define("disableIceMelt", true);
@@ -226,12 +236,11 @@ public class WesterosCraftCore {
 			disableVineGrowFade = BUILDER.comment("Disable vine grow/fade").define("disablevineGrowFade", true);
 			vineSurviveAny = BUILDER.comment("Allow vine survive on any surface").define("vineSurviveAny", true);
 			BUILDER.pop();
-			BUILDER.push("autoClose");
-            autoCloseDoors = BUILDER.comment("Which door blocks to auto-close").defineList("autoCloseDoors", 
-            		Arrays.asList("minecraft:oak_door","minecraft:spruce_door","minecraft:birch_door","minecraft:jungle_door",
-            	    "minecraft:acacia_door","minecraft:dark_oak_door","minecraft:crimson_door","minecraft:warped_door"), entry -> true);
-            autoCloseTime = BUILDER.comment("Number of seconds before auto-close").defineInRange("autoCloseTime", 30, 5, 300);
-            autoCloseAll = BUILDER.comment("Auto close all door blocks").define("autoCloseAll", false);
+			BUILDER.push("autoRestore");
+            autoRestoreDoors = BUILDER.comment("Which door blocks to auto-restore open state (when changed by non-creative mode players)").defineList("autoRestoreDoors", 
+            		Arrays.asList(), entry -> true);
+            autoRestoreTime = BUILDER.comment("Number of seconds before auto-restore").defineInRange("autoRestoreTime", 30, 5, 300);
+            autoRestoreAllDoors = BUILDER.comment("Auto restore all door blocks").define("autoRestoreAllDoors", false);
             BUILDER.pop();
 			SPEC = BUILDER.build();
 		}
@@ -244,35 +253,55 @@ public class WesterosCraftCore {
     public static void debugLog(String msg) {
     	if (Config.debugLog.get()) { log.info(msg); }
     }
+    public static void debugRestoreLog(String msg) {
+    	if (Config.debugRestore.get()) { log.info(msg); }
+    }
     
     public static boolean isAutoCloseDoor(Block blk) {
-    	if (WesterosCraftCore.Config.autoCloseAll.get()) return true;
-    	for (int i = 0; i < autoCloseDoors.length; i++) {
-    		if (autoCloseDoors[i] == blk) return true;
+    	if (WesterosCraftCore.Config.autoRestoreAllDoors.get()) return true;
+    	for (int i = 0; i < autoRestoreDoors.length; i++) {
+    		if (autoRestoreDoors[i] == blk) return true;
     	}
     	return false;
     }
-    public static void setPendingDoorClose(Level world, BlockPos pos) {
-    	PendingDoorClose pdc = new PendingDoorClose();
-    	pdc.world = world; pdc.pos = pos;
-    	pendingDoorClose.put(pdc, secCount + WesterosCraftCore.Config.autoCloseTime.get());
+    public static void setPendingDoorRestore(Level world, BlockPos pos, boolean isOpen, boolean isCreative) {
+    	PendingDoorRestore pdc = new PendingDoorRestore(world, pos);
+    	RestoreInfo ri = pendingDoorRestore.get(pdc);
+    	if ((ri == null) && (!isCreative)) {	// New one, and not creative mode, add record
+    		ri = new RestoreInfo();
+    		ri.open = isOpen; ri.secCount = secCount + WesterosCraftCore.Config.autoRestoreTime.get();
+    		pendingDoorRestore.put(pdc, ri);
+    		debugRestoreLog("Set door restore for " + pos + " = " + isOpen);
+    	}
+    	// Else, if restore record pending, but creative change, drop it
+    	else if (ri != null) {
+    		if (isCreative) {
+    			pendingDoorRestore.remove(pdc);
+    			debugRestoreLog("Drop door restore for " + pos);
+    		}
+    		else {	// Else, reset restore time
+    			ri.secCount = secCount + WesterosCraftCore.Config.autoRestoreTime.get();
+        		debugRestoreLog("Update door restore for " + pos + " = " + ri.open);
+    		}
+    	}
     }
-    public static void handlePendingDoorCloses(boolean now) {
+    public static void handlePendingDoorRestores(boolean now) {
     	// Handle pending door close checks
-    	Set<Entry<PendingDoorClose, Long>> kvset = pendingDoorClose.entrySet();
-    	Iterator<Entry<PendingDoorClose, Long>> iter = kvset.iterator();	// So that we can remove during iteration
+    	Set<Entry<PendingDoorRestore, RestoreInfo>> kvset = pendingDoorRestore.entrySet();
+    	Iterator<Entry<PendingDoorRestore, RestoreInfo>> iter = kvset.iterator();	// So that we can remove during iteration
     	while (iter.hasNext()) {
-    		Entry<PendingDoorClose, Long> kv = iter.next();
-    		if (now || (kv.getValue() <= secCount)) {
-    			PendingDoorClose pdc = kv.getKey();
+    		Entry<PendingDoorRestore, RestoreInfo> kv = iter.next();
+			PendingDoorRestore pdc = kv.getKey();
+    		RestoreInfo ri = kv.getValue();
+    		if (now || (ri.secCount <= secCount)) {
     			BlockState bs = pdc.world.getBlockState(pdc.pos);	// Get the block state
     			if (bs != null) {
     				Block blk = bs.getBlock();
-    				if (isAutoCloseDoor(blk)) {	// Still right type of door
-    					if (bs.getValue(DoorBlock.OPEN)) {	// And still open?
-    		        		debugLog("closing " + kv.getKey().pos);
+    				if ((blk instanceof DoorBlock) && isAutoCloseDoor(blk)) {	// Still right type of door
+    					if (bs.getValue(DoorBlock.OPEN) != ri.open) {	// And still wrong state?
+    		        		debugRestoreLog("setting " + kv.getKey().pos + " to " + ri.open);
     						DoorBlock dblk = (DoorBlock)blk;
-    						dblk.setOpen(null, pdc.world, bs, pdc.pos, false);
+    						dblk.setOpen(null, pdc.world, bs, pdc.pos, ri.open);
     					}
     				}
     			}
