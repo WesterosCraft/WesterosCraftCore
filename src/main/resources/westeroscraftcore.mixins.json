@@ -20,7 +20,8 @@
 		"MixinTNTBlock",
 		"MixinVineBlock",
 		"MixinPrimedTnt",
-		"MixinMinecartTNT"
+		"MixinMinecartTNT",
+		"MixinDoorBlock"
 	],
 	"client": [ 
 	],
