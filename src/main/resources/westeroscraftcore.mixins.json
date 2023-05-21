@@ -22,7 +22,8 @@
 		"MixinPrimedTnt",
 		"MixinMinecartTNT",
 		"MixinDoorBlock",
-		"MixinFenceGateBlock"
+		"MixinFenceGateBlock",
+		"MixinTrapDoorBlock"
 	],
 	"client": [ 
 	],

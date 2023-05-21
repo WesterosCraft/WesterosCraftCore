@@ -32,7 +32,7 @@ public abstract class MixinTrapDoorBlock
 		if (WesterosCraftCore.isAutoRestoreTrapDoor(state.getBlock())) {
 			WesterosCraftCore.debugRestoreLog("Is auto restore trapdoor");
 			boolean isCreative = (player != null) ? player.isCreative() : false;
-			WesterosCraftCore.setPendingGateRestore(world, pos, !state.getValue(TrapDoorBlock.OPEN), isCreative);
+			WesterosCraftCore.setPendingTrapDoorRestore(world, pos, !state.getValue(TrapDoorBlock.OPEN), isCreative);
 		}
 	}
 }
