@@ -8,8 +8,10 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.DoorBlock;
 import net.minecraft.world.level.block.FenceGateBlock;
+import net.minecraft.world.level.block.TrapDoorBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.gameevent.GameEvent;
+import net.minecraft.world.level.material.Fluids;
 import net.minecraftforge.common.ForgeConfigSpec;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.RegisterCommandsEvent;
@@ -62,6 +64,7 @@ public class WesterosCraftCore {
 
 	public static Block[] autoRestoreDoors = new Block[0];
 	public static Block[] autoRestoreGates = new Block[0];
+	public static Block[] autoRestoreTrapDoors = new Block[0];
 	private static boolean ticking = false;
 	private static int ticks = 0;
 	private static long secCount = 0;
@@ -92,6 +95,7 @@ public class WesterosCraftCore {
 	};
 	private static Map<PendingRestore, RestoreInfo> pendingDoorRestore = new HashMap<PendingRestore, RestoreInfo>();
 	private static Map<PendingRestore, RestoreInfo> pendingGateRestore = new HashMap<PendingRestore, RestoreInfo>();
+	private static Map<PendingRestore, RestoreInfo> pendingTrapDoorRestore = new HashMap<PendingRestore, RestoreInfo>();
 	
 	public WesterosCraftCore() {
 		// Register the doClientStuff method for modloading
@@ -139,6 +143,8 @@ public class WesterosCraftCore {
     	handlePendingDoorRestores(true);
     	// Handle any pending gate restores (force immediate)
     	handlePendingGateRestores(true);
+    	// Handle any pending trap door restores (force immediate)
+    	handlePendingTrapDoorRestores(true);
 		
 	}
 	
@@ -152,6 +158,8 @@ public class WesterosCraftCore {
         	handlePendingDoorRestores(false);
         	// Handle any pending gate restores
         	handlePendingGateRestores(false);
+        	// Handle any pending trap door restores
+        	handlePendingTrapDoorRestores(false);
         	
         	ticks = 0;
         }
@@ -182,6 +190,19 @@ public class WesterosCraftCore {
 			}
 		}
 		autoRestoreGates = glist.toArray(new Block[0]);
+		List<Block> tdlist = new ArrayList<Block>();
+		for (String bn : Config.autoRestoreTrapDoors.get()) {
+			ResourceLocation br = new ResourceLocation(bn);
+			Block blk = ForgeRegistries.BLOCKS.getValue(br);
+			if ((blk != null) && (blk instanceof DoorBlock)) {
+				tdlist.add(blk);
+			}
+			else {
+				log.warn("Invalid trap door block name: " + bn);
+			}
+		}
+		autoRestoreTrapDoors = tdlist.toArray(new Block[0]);
+
 		// We're ready to handle delayed actions
 		ticking = true;
 	}
@@ -225,6 +246,8 @@ public class WesterosCraftCore {
 		public static final ForgeConfigSpec.BooleanValue autoRestoreAllDoors;
 		public static final ForgeConfigSpec.ConfigValue<List<? extends String>> autoRestoreGates;
 		public static final ForgeConfigSpec.BooleanValue autoRestoreAllGates;
+		public static final ForgeConfigSpec.ConfigValue<List<? extends String>> autoRestoreTrapDoors;
+		public static final ForgeConfigSpec.BooleanValue autoRestoreAllTrapDoors;
 
 		static {
 			BUILDER.comment("Module options");
@@ -263,6 +286,9 @@ public class WesterosCraftCore {
             autoRestoreGates = BUILDER.comment("Which fence gate blocks to auto-restore open state (when changed by non-creative mode players)").defineList("autoRestoreGates", 
             		Arrays.asList(), entry -> true);
             autoRestoreAllGates = BUILDER.comment("Auto restore all gate blocks").define("autoRestoreAllGates", false);
+            autoRestoreTrapDoors = BUILDER.comment("Which trap door blocks to auto-restore open state (when changed by non-creative mode players)").defineList("autoRestoreTrapDoors", 
+            		Arrays.asList(), entry -> true);
+            autoRestoreAllTrapDoors = BUILDER.comment("Auto restore all trap door blocks").define("autoRestoreAllTrapDoors", false);
             BUILDER.pop();
 			SPEC = BUILDER.build();
 		}
@@ -290,6 +316,13 @@ public class WesterosCraftCore {
     	if (WesterosCraftCore.Config.autoRestoreAllGates.get()) return true;
     	for (int i = 0; i < autoRestoreGates.length; i++) {
     		if (autoRestoreGates[i] == blk) return true;
+    	}
+    	return false;
+    }
+    public static boolean isAutoRestoreTrapDoor(Block blk) {
+    	if (WesterosCraftCore.Config.autoRestoreAllTrapDoors.get()) return true;
+    	for (int i = 0; i < autoRestoreTrapDoors.length; i++) {
+    		if (autoRestoreTrapDoors[i] == blk) return true;
     	}
     	return false;
     }
@@ -335,6 +368,28 @@ public class WesterosCraftCore {
     		}
     	}
     }
+    public static void setPendingTrapDoorRestore(Level world, BlockPos pos, boolean isOpen, boolean isCreative) {
+    	PendingRestore pdc = new PendingRestore(world, pos);
+    	RestoreInfo ri = pendingTrapDoorRestore.get(pdc);
+    	if ((ri == null) && (!isCreative)) {	// New one, and not creative mode, add record
+    		ri = new RestoreInfo();
+    		ri.open = isOpen; ri.secCount = secCount + WesterosCraftCore.Config.autoRestoreTime.get();
+    		pendingTrapDoorRestore.put(pdc, ri);
+    		debugRestoreLog("Set trap door restore for " + pos + " = " + isOpen);
+    	}
+    	// Else, if restore record pending, but creative change, drop it
+    	else if (ri != null) {
+    		if (isCreative) {
+    			pendingTrapDoorRestore.remove(pdc);
+    			debugRestoreLog("Drop trap door restore for " + pos);
+    		}
+    		else {	// Else, reset restore time
+    			ri.secCount = secCount + WesterosCraftCore.Config.autoRestoreTime.get();
+        		debugRestoreLog("Update trap door restore for " + pos + " = " + ri.open);
+    		}
+    	}
+    }
+
     public static void handlePendingDoorRestores(boolean now) {
     	// Handle pending door close checks
     	Set<Entry<PendingRestore, RestoreInfo>> kvset = pendingDoorRestore.entrySet();
@@ -385,4 +440,34 @@ public class WesterosCraftCore {
     		}	
     	}
     }
+    public static void handlePendingTrapDoorRestores(boolean now) {
+    	// Handle pending door close checks
+    	Set<Entry<PendingRestore, RestoreInfo>> kvset = pendingTrapDoorRestore.entrySet();
+    	Iterator<Entry<PendingRestore, RestoreInfo>> iter = kvset.iterator();	// So that we can remove during iteration
+    	while (iter.hasNext()) {
+    		Entry<PendingRestore, RestoreInfo> kv = iter.next();
+			PendingRestore pdc = kv.getKey();
+    		RestoreInfo ri = kv.getValue();
+    		if (now || (ri.secCount <= secCount)) {
+    			BlockState bs = pdc.world.getBlockState(pdc.pos);	// Get the block state
+    			if (bs != null) {
+    				Block blk = bs.getBlock();
+    				if ((blk instanceof TrapDoorBlock) && isAutoRestoreTrapDoor(blk)) {	// Still right type of door
+    					if (bs.getValue(TrapDoorBlock.OPEN) != ri.open) {	// And still wrong state?
+    		        		debugRestoreLog("setting " + kv.getKey().pos + " to " + ri.open);
+    						TrapDoorBlock dblk = (TrapDoorBlock)blk;
+    						
+    			            bs = bs.setValue(TrapDoorBlock.OPEN, Boolean.valueOf(ri.open));
+    			            dblk.playSound((Player)null, pdc.world, pdc.pos, ri.open);
+    			            if (bs.getValue(TrapDoorBlock.WATERLOGGED)) {
+    			               pdc.world.scheduleTick(pdc.pos, Fluids.WATER, Fluids.WATER.getTickDelay(pdc.world));
+    			            }
+    					}
+    				}
+    			}
+    			iter.remove();	// And remove it from the set
+    		}	
+    	}
+    }
+
 }
