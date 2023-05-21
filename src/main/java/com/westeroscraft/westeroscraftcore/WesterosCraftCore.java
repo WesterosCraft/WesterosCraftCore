@@ -458,6 +458,7 @@ public class WesterosCraftCore {
     						TrapDoorBlock dblk = (TrapDoorBlock)blk;
     						
     			            bs = bs.setValue(TrapDoorBlock.OPEN, Boolean.valueOf(ri.open));
+    						pdc.world.setBlock(pdc.pos, bs, 10);
     			            dblk.playSound((Player)null, pdc.world, pdc.pos, ri.open);
     			            if (bs.getValue(TrapDoorBlock.WATERLOGGED)) {
     			               pdc.world.scheduleTick(pdc.pos, Fluids.WATER, Fluids.WATER.getTickDelay(pdc.world));
