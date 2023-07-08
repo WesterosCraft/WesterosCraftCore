@@ -30,8 +30,8 @@ public abstract class MixinDoorBlock
 		if (ci.getReturnValue() == InteractionResult.PASS) return;
 		// Is this a door we should be planning to close
 		if (WesterosCraftCore.isAutoRestoreDoor(state.getBlock())) {
-			WesterosCraftCore.debugRestoreLog("Is auto close door");
 			boolean isCreative = (player != null) ? player.isCreative() : false;
+			WesterosCraftCore.debugRestoreLog("Is auto close door: isCreative=" + isCreative);
 			WesterosCraftCore.setPendingDoorRestore(world, pos, !state.getValue(DoorBlock.OPEN), isCreative);
 		}
 	}

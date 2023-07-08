@@ -30,8 +30,8 @@ public abstract class MixinFenceGateBlock
 		if (ci.getReturnValue() == InteractionResult.PASS) return;
 		// Is this a door we should be planning to close
 		if (WesterosCraftCore.isAutoRestoreGate(state.getBlock())) {
-			WesterosCraftCore.debugRestoreLog("Is auto restore gate");
 			boolean isCreative = (player != null) ? player.isCreative() : false;
+			WesterosCraftCore.debugRestoreLog("Is auto restore gate: isCreative=" + isCreative);
 			WesterosCraftCore.setPendingGateRestore(world, pos, !state.getValue(FenceGateBlock.OPEN), isCreative);
 		}
 	}

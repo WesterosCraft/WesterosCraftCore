@@ -30,8 +30,8 @@ public abstract class MixinTrapDoorBlock
 		if (ci.getReturnValue() == InteractionResult.PASS) return;
 		// Is this a trap door we should be planning to close
 		if (WesterosCraftCore.isAutoRestoreTrapDoor(state.getBlock())) {
-			WesterosCraftCore.debugRestoreLog("Is auto restore trapdoor");
 			boolean isCreative = (player != null) ? player.isCreative() : false;
+			WesterosCraftCore.debugRestoreLog("Is auto restore trapdoor: isCreative=" + isCreative);
 			WesterosCraftCore.setPendingTrapDoorRestore(world, pos, !state.getValue(TrapDoorBlock.OPEN), isCreative);
 		}
 	}
