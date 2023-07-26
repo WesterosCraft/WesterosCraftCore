@@ -1,9 +1,15 @@
 package com.westeroscraft.westeroscraftcore;
 
+import net.luckperms.api.LuckPerms;
+import net.luckperms.api.LuckPermsProvider;
+import net.luckperms.api.cacheddata.CachedPermissionData;
+import net.luckperms.api.model.user.User;
+import net.luckperms.api.util.Tristate;
 import net.minecraft.CrashReport;
 import net.minecraft.ReportedException;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.DoorBlock;
@@ -17,6 +23,9 @@ import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.RegisterCommandsEvent;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.TickEvent.ServerTickEvent;
+import net.minecraftforge.event.entity.player.PlayerEvent.PlayerChangedDimensionEvent;
+import net.minecraftforge.event.entity.player.PlayerEvent.PlayerLoggedInEvent;
+import net.minecraftforge.event.entity.player.PlayerEvent.PlayerRespawnEvent;
 import net.minecraftforge.event.server.ServerStoppingEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.ModLoadingContext;
@@ -28,9 +37,11 @@ import net.minecraftforge.fml.event.lifecycle.FMLLoadCompleteEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.fml.loading.FMLPaths;
 import net.minecraftforge.registries.ForgeRegistries;
+import net.minecraftforge.server.permission.PermissionAPI;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.checkerframework.checker.nullness.qual.NonNull;
 
 import java.io.IOException;
 import java.nio.file.FileAlreadyExistsException;
@@ -48,6 +59,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerPlayer;
 
 // The value here should match an entry in the META-INF/mods.toml file
 @Mod(WesterosCraftCore.MOD_ID)
@@ -298,6 +310,38 @@ public class WesterosCraftCore {
 
     @SubscribeEvent
     public void onCommonSetupEvent(FMLCommonSetupEvent event) {
+    }
+    
+    @SubscribeEvent
+    public void onPlayerLoggedInEvent(PlayerLoggedInEvent evt) {
+    	checkPlayerGameMode(evt.getPlayer());
+    }
+    @SubscribeEvent
+    public void onPlayerRespawnEvent(PlayerRespawnEvent evt) {
+    	checkPlayerGameMode(evt.getPlayer());    	
+    }
+    @SubscribeEvent
+    public void onPlayerChangedDimensionEvent(PlayerChangedDimensionEvent evt) {
+    	checkPlayerGameMode(evt.getPlayer());
+    }
+    
+    static LuckPerms api;
+
+    // Check game mode of player
+    private void checkPlayerGameMode(Player player) {
+    	if (player instanceof ServerPlayer) {
+    		ServerPlayer sp = (ServerPlayer) player;
+    		// If not in adventure mode, see if supposed to be forced
+    		if (sp.gameMode.getGameModeForPlayer() != GameType.ADVENTURE) {
+    	    	if (api == null) api = LuckPermsProvider.get();
+				CachedPermissionData perms = api.getPlayerAdapter(ServerPlayer.class).getPermissionData(sp);
+				Tristate rslt = perms.checkPermission("westeroscraftcore.forceadventuremode");
+				if (rslt == Tristate.TRUE) {	// If set to true for player
+					log.info("Player " + sp.getDisplayName().getString() + " to be forced to ADVENTURE mode");
+					sp.gameMode.changeGameModeForPlayer(GameType.ADVENTURE);
+    			}
+    		}
+    	}
     }
     
     public static void debugLog(String msg) {

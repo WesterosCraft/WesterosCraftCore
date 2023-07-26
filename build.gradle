@@ -105,7 +105,7 @@ repositories {
 dependencies {
     minecraft "net.minecraftforge:forge:${config.minecraft_version}-${config.forge_version}"
 	annotationProcessor 'org.spongepowered:mixin:0.8.5:processor'
-
+    compileOnly 'net.luckperms:api:5.4'
 }
 
 // Example for how to get properties into the manifest for reading by the runtime..

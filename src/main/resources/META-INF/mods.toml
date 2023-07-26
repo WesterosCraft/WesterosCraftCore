@@ -26,3 +26,9 @@ This mod provides the customized block behaviors for WesterosCraft
     versionRange="[1.18.2,1.19)"
     ordering="NONE"
     side="BOTH"
+[[dependencies.westeroscraftcore]] #optional
+    modId="luckperms" #mandatory
+    mandatory=true #mandatory
+    versionRange="[5.4,)" #mandatory
+    ordering="AFTER"
+    side="BOTH"
