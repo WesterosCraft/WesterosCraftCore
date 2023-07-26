@@ -32,3 +32,9 @@ This mod provides the customized block behaviors for WesterosCraft
     versionRange="[5.4,)" #mandatory
     ordering="AFTER"
     side="BOTH"
+[[dependencies.westeroscraftcore]] #optional
+    modId="worldedit" #mandatory
+    mandatory=true #mandatory
+    versionRange="[7.2.10,)" #mandatory
+    ordering="AFTER"
+    side="BOTH"

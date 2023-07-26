@@ -26,6 +26,7 @@ import net.minecraftforge.event.TickEvent.ServerTickEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent.PlayerChangedDimensionEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent.PlayerLoggedInEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent.PlayerRespawnEvent;
+import net.minecraftforge.event.server.ServerStartingEvent;
 import net.minecraftforge.event.server.ServerStoppingEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.ModLoadingContext;
@@ -42,6 +43,8 @@ import net.minecraftforge.server.permission.PermissionAPI;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.checkerframework.checker.nullness.qual.NonNull;
+
+import com.sk89q.worldedit.forge.ForgeWorldEdit;
 
 import java.io.IOException;
 import java.nio.file.FileAlreadyExistsException;
@@ -149,6 +152,12 @@ public class WesterosCraftCore {
 		//PWeatherCommand.register(commandDispatcher);
 	}
 
+	@SubscribeEvent
+	public void serverStarting(ServerStartingEvent event) {
+		log.info("Register luckperms permission provider for worldedit");
+		ForgeWorldEdit.inst.setPermissionsProvider(new WorldEditPermissionProvider());
+	}
+	
 	@SubscribeEvent
 	public void serverStopping(ServerStoppingEvent event) {
     	// Handle any pending door restores (force immediate)
@@ -325,16 +334,20 @@ public class WesterosCraftCore {
     	checkPlayerGameMode(evt.getPlayer());
     }
     
-    static LuckPerms api;
+    private static LuckPerms api;
 
+    public static LuckPerms getLuckPermsAPI() {
+    	if (api == null) api = LuckPermsProvider.get();
+    	return api;
+    }
+    
     // Check game mode of player
     private void checkPlayerGameMode(Player player) {
     	if (player instanceof ServerPlayer) {
     		ServerPlayer sp = (ServerPlayer) player;
     		// If not in adventure mode, see if supposed to be forced
     		if (sp.gameMode.getGameModeForPlayer() != GameType.ADVENTURE) {
-    	    	if (api == null) api = LuckPermsProvider.get();
-				CachedPermissionData perms = api.getPlayerAdapter(ServerPlayer.class).getPermissionData(sp);
+				CachedPermissionData perms = getLuckPermsAPI().getPlayerAdapter(ServerPlayer.class).getPermissionData(sp);
 				Tristate rslt = perms.checkPermission("westeroscraftcore.forceadventuremode");
 				if (rslt == Tristate.TRUE) {	// If set to true for player
 					log.info("Player " + sp.getDisplayName().getString() + " to be forced to ADVENTURE mode");

@@ -100,12 +100,18 @@ repositories {
         name = "dynmap"
         url = "https://repo.mikeprimm.com"
     }
+    maven {
+    	name = "worldedit"
+    	url = "https://maven.enginehub.org/repo/"
+	}
 }
 
 dependencies {
     minecraft "net.minecraftforge:forge:${config.minecraft_version}-${config.forge_version}"
 	annotationProcessor 'org.spongepowered:mixin:0.8.5:processor'
     compileOnly 'net.luckperms:api:5.4'
+    compileOnly 'com.sk89q.worldedit:worldedit-forge-mc1.18.2:7.2.10'
+    compileOnly 'com.sk89q.worldedit:worldedit-core:7.2.10'    
 }
 
 // Example for how to get properties into the manifest for reading by the runtime..
