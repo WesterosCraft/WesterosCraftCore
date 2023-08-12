@@ -270,6 +270,7 @@ public class WesterosCraftCore {
 		public static final ForgeConfigSpec.BooleanValue autoRestoreAllGates;
 		public static final ForgeConfigSpec.ConfigValue<List<? extends String>> autoRestoreTrapDoors;
 		public static final ForgeConfigSpec.BooleanValue autoRestoreAllTrapDoors;
+		public static final ForgeConfigSpec.BooleanValue disableFarmStomping;
 		public static final ForgeConfigSpec.BooleanValue disableHunger;
 
 		static {
@@ -301,6 +302,7 @@ public class WesterosCraftCore {
 			disableVineGrowFade = BUILDER.comment("Disable vine grow/fade").define("disablevineGrowFade", true);
 			vineSurviveAny = BUILDER.comment("Allow vine survive on any surface").define("vineSurviveAny", true);
 			snowLayerSurviveAny = BUILDER.comment("Allow snow layer survive on any surface").define("snowLayerSurviveAny", true);
+			disableFarmStomping = BUILDER.comment("Disable farmland stomping").define("disableFarmStomping", true);
 			BUILDER.pop();
 			BUILDER.push("autoRestore");
             autoRestoreDoors = BUILDER.comment("Which door blocks to auto-restore open state (when changed by non-creative mode players)").defineList("autoRestoreDoors", 

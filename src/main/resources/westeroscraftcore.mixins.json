@@ -24,7 +24,8 @@
 		"MixinDoorBlock",
 		"MixinFenceGateBlock",
 		"MixinTrapDoorBlock",
-		"MixinFoodData"
+		"MixinFoodData",
+		"MixinFarmBlock"
 	],
 	"client": [ 
 	],
