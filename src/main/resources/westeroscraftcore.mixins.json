@@ -23,7 +23,8 @@
 		"MixinMinecartTNT",
 		"MixinDoorBlock",
 		"MixinFenceGateBlock",
-		"MixinTrapDoorBlock"
+		"MixinTrapDoorBlock",
+		"MixinFoodData"
 	],
 	"client": [ 
 	],

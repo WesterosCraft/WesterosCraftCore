@@ -270,6 +270,7 @@ public class WesterosCraftCore {
 		public static final ForgeConfigSpec.BooleanValue autoRestoreAllGates;
 		public static final ForgeConfigSpec.ConfigValue<List<? extends String>> autoRestoreTrapDoors;
 		public static final ForgeConfigSpec.BooleanValue autoRestoreAllTrapDoors;
+		public static final ForgeConfigSpec.BooleanValue disableHunger;
 
 		static {
 			BUILDER.comment("Module options");
@@ -313,6 +314,9 @@ public class WesterosCraftCore {
             		Arrays.asList(), entry -> true);
             autoRestoreAllTrapDoors = BUILDER.comment("Auto restore all trap door blocks").define("autoRestoreAllTrapDoors", false);
             BUILDER.pop();
+            BUILDER.push("playerMods");
+            disableHunger = BUILDER.comment("Disable hunger on players").define("disableHunger", true);
+            BUILDER.pop();            
 			SPEC = BUILDER.build();
 		}
 	}
