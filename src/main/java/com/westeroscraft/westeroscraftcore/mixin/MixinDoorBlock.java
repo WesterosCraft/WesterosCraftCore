@@ -5,6 +5,7 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.DoorBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
@@ -33,6 +34,13 @@ public abstract class MixinDoorBlock
 			boolean isCreative = (player != null) ? player.isCreative() : false;
 			WesterosCraftCore.debugRestoreLog("Is auto close door: isCreative=" + isCreative);
 			WesterosCraftCore.setPendingDoorRestore(world, pos, !state.getValue(DoorBlock.OPEN), isCreative);
+		}
+	}
+	
+	@Inject(method = "canSurvive(Lnet/minecraft/world/level/block/state/BlockState;Lnet/minecraft/world/level/LevelReader;Lnet/minecraft/core/BlockPos;)Z", at = @At("RETURN"))	
+	public void doCanSurvive(BlockState p_52783_, LevelReader p_52784_, BlockPos p_52785_, CallbackInfoReturnable<Boolean> ci) {
+		if (WesterosCraftCore.Config.doorSurviveAny.get()) {
+			ci.setReturnValue(true);
 		}
 	}
 }
