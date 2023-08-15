@@ -37,7 +37,7 @@ public abstract class MixinDoorBlock
 		}
 	}
 	
-	@Inject(method = "canSurvive(Lnet/minecraft/world/level/block/state/BlockState;Lnet/minecraft/world/level/LevelReader;Lnet/minecraft/core/BlockPos;)Z", at = @At("RETURN"))	
+	@Inject(method = "canSurvive(Lnet/minecraft/world/level/block/state/BlockState;Lnet/minecraft/world/level/LevelReader;Lnet/minecraft/core/BlockPos;)Z", at = @At("HEAD"), cancellable=true)	
 	public void doCanSurvive(BlockState p_52783_, LevelReader p_52784_, BlockPos p_52785_, CallbackInfoReturnable<Boolean> ci) {
 		if (WesterosCraftCore.Config.doorSurviveAny.get()) {
 			ci.setReturnValue(true);
