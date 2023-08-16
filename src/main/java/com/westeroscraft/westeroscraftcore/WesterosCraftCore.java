@@ -273,6 +273,7 @@ public class WesterosCraftCore {
 		public static final ForgeConfigSpec.BooleanValue autoRestoreAllTrapDoors;
 		public static final ForgeConfigSpec.BooleanValue disableFarmStomping;
 		public static final ForgeConfigSpec.BooleanValue disableHunger;
+		public static final ForgeConfigSpec.BooleanValue blockWitherSpawn;
 
 		static {
 			BUILDER.comment("Module options");
@@ -320,6 +321,7 @@ public class WesterosCraftCore {
             BUILDER.pop();
             BUILDER.push("playerMods");
             disableHunger = BUILDER.comment("Disable hunger on players").define("disableHunger", true);
+            blockWitherSpawn = BUILDER.comment("Disable hunger on players").define("blockWitherSpawn", true);
             BUILDER.pop();            
 			SPEC = BUILDER.build();
 		}
