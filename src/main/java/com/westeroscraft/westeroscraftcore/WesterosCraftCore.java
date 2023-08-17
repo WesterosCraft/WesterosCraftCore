@@ -8,7 +8,12 @@ import net.luckperms.api.util.Tristate;
 import net.minecraft.CrashReport;
 import net.minecraft.ReportedException;
 import net.minecraft.core.BlockPos;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
@@ -274,7 +279,7 @@ public class WesterosCraftCore {
 		public static final ForgeConfigSpec.BooleanValue disableFarmStomping;
 		public static final ForgeConfigSpec.BooleanValue disableHunger;
 		public static final ForgeConfigSpec.BooleanValue blockWitherSpawn;
-
+		public static final ForgeConfigSpec.ConfigValue<List<? extends String>> patchouliBooks;
 		static {
 			BUILDER.comment("Module options");
 			BUILDER.push("debug");
@@ -322,6 +327,8 @@ public class WesterosCraftCore {
             BUILDER.push("playerMods");
             disableHunger = BUILDER.comment("Disable hunger on players").define("disableHunger", true);
             blockWitherSpawn = BUILDER.comment("Disable hunger on players").define("blockWitherSpawn", true);
+            patchouliBooks = BUILDER.comment("What books should be in player inventory (non-creative mode)").defineList("patchouliBooks", 
+            		Arrays.asList(), entry -> true);
             BUILDER.pop();            
 			SPEC = BUILDER.build();
 		}
@@ -334,10 +341,12 @@ public class WesterosCraftCore {
     @SubscribeEvent
     public void onPlayerLoggedInEvent(PlayerLoggedInEvent evt) {
     	checkPlayerGameMode(evt.getPlayer());
+    	checkPlayerForItems(evt.getPlayer());
     }
     @SubscribeEvent
     public void onPlayerRespawnEvent(PlayerRespawnEvent evt) {
     	checkPlayerGameMode(evt.getPlayer());    	
+    	checkPlayerForItems(evt.getPlayer());
     }
     @SubscribeEvent
     public void onPlayerChangedDimensionEvent(PlayerChangedDimensionEvent evt) {
@@ -362,6 +371,32 @@ public class WesterosCraftCore {
 				if (rslt == Tristate.TRUE) {	// If set to true for player
 					log.info("Player " + sp.getDisplayName().getString() + " to be forced to ADVENTURE mode");
 					sp.gameMode.changeGameModeForPlayer(GameType.ADVENTURE);
+    			}
+    		}
+    	}
+    }
+    // Check player inventory for guide
+    private void checkPlayerForItems(Player player) {
+    	if (player instanceof ServerPlayer) {
+    		ServerPlayer sp = (ServerPlayer) player;
+    		Inventory inv = sp.getInventory();
+    		// If in adventure mode, see if missing item
+    		if (sp.gameMode.getGameModeForPlayer() != GameType.CREATIVE) {
+    			List<? extends String> items = Config.patchouliBooks.get();
+				Item itm = ForgeRegistries.ITEMS.getValue(new ResourceLocation("patchouli:guide_book"));
+				if (itm == Items.AIR) {
+					log.warn("No patchouli books");
+					return;
+				}
+    			for (String item : items) {
+    				ItemStack itms = new ItemStack(itm, 1);
+    				CompoundTag ct = new CompoundTag();
+    				ct.putString("patchouli:book", item);
+    				itms.setTag(ct);
+    				if (!inv.contains(itms)) {
+    					log.info("Add " + itms + " to " + player.getDisplayName().getString());
+    					inv.placeItemBackInInventory(itms, true);
+    				}
     			}
     		}
     	}
