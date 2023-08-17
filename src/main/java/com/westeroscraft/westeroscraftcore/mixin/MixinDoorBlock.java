@@ -5,10 +5,10 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.LevelReader;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.DoorBlock;
+import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
 import net.minecraft.world.phys.BlockHitResult;
 
 import org.spongepowered.asm.mixin.Mixin;
@@ -21,10 +21,8 @@ import com.westeroscraft.westeroscraftcore.WesterosCraftCore;
 @Mixin(DoorBlock.class) 
 public abstract class MixinDoorBlock
 {	
-	// This constructor is fake and never used
-	protected MixinDoorBlock()
-	{
-	}
+    public MixinDoorBlock() {
+    }
 
 	@Inject(method = "use(Lnet/minecraft/world/level/block/state/BlockState;Lnet/minecraft/world/level/Level;Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/entity/player/Player;Lnet/minecraft/world/InteractionHand;Lnet/minecraft/world/phys/BlockHitResult;)Lnet/minecraft/world/InteractionResult;", at = @At("RETURN"))	
 	private void doUse(BlockState state, Level world, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hitrslt, CallbackInfoReturnable<InteractionResult> ci) {
@@ -37,11 +35,5 @@ public abstract class MixinDoorBlock
 			WesterosCraftCore.setPendingDoorRestore(world, pos, !state.getValue(DoorBlock.OPEN), isCreative);
 		}
 	}
-	
-	@Inject(method = "canSurvive(Lnet/minecraft/world/level/block/state/BlockState;Lnet/minecraft/world/level/LevelReader;Lnet/minecraft/core/BlockPos;)Z", at = @At("HEAD"), cancellable=true)	
-	public void doCanSurvive(BlockState p_52783_, LevelReader p_52784_, BlockPos p_52785_, CallbackInfoReturnable<Boolean> ci) {
-		if ((p_52783_.getValue(DoorBlock.HALF) == DoubleBlockHalf.LOWER) && WesterosCraftCore.Config.doorSurviveAny.get()) {
-			ci.setReturnValue(true);
-		}
-	}
+
 }

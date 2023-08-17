@@ -3,7 +3,6 @@ package com.westeroscraft.westeroscraftcore;
 import net.luckperms.api.LuckPerms;
 import net.luckperms.api.LuckPermsProvider;
 import net.luckperms.api.cacheddata.CachedPermissionData;
-import net.luckperms.api.model.user.User;
 import net.luckperms.api.util.Tristate;
 import net.minecraft.CrashReport;
 import net.minecraft.ReportedException;
@@ -43,11 +42,9 @@ import net.minecraftforge.fml.event.lifecycle.FMLLoadCompleteEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.fml.loading.FMLPaths;
 import net.minecraftforge.registries.ForgeRegistries;
-import net.minecraftforge.server.permission.PermissionAPI;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.checkerframework.checker.nullness.qual.NonNull;
 
 import com.sk89q.worldedit.forge.ForgeWorldEdit;
 
@@ -268,7 +265,6 @@ public class WesterosCraftCore {
 		public static final ForgeConfigSpec.BooleanValue disableVineGrowFade;
 		public static final ForgeConfigSpec.BooleanValue vineSurviveAny;
 		public static final ForgeConfigSpec.BooleanValue snowLayerSurviveAny;
-		public static final ForgeConfigSpec.BooleanValue doorSurviveAny;
 		public static final ForgeConfigSpec.ConfigValue<List<? extends String>> autoRestoreDoors;
 		public static final ForgeConfigSpec.IntValue autoRestoreTime;
 		public static final ForgeConfigSpec.BooleanValue autoRestoreAllDoors;
@@ -310,7 +306,6 @@ public class WesterosCraftCore {
 			vineSurviveAny = BUILDER.comment("Allow vine survive on any surface").define("vineSurviveAny", true);
 			snowLayerSurviveAny = BUILDER.comment("Allow snow layer survive on any surface").define("snowLayerSurviveAny", true);
 			disableFarmStomping = BUILDER.comment("Disable farmland stomping").define("disableFarmStomping", true);
-			doorSurviveAny = BUILDER.comment("Allow door to survive on any surface").define("doorSurviveAny", true);
 			BUILDER.pop();
 			BUILDER.push("autoRestore");
             autoRestoreDoors = BUILDER.comment("Which door blocks to auto-restore open state (when changed by non-creative mode players)").defineList("autoRestoreDoors", 
