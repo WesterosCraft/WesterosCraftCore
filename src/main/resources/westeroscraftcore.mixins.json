@@ -26,7 +26,8 @@
 		"MixinTrapDoorBlock",
 		"MixinFoodData",
 		"MixinFarmBlock",
-		"MixinWitherSkullBlock"
+		"MixinWitherSkullBlock",
+		"MixinItemFrame"
 	],
 	"client": [ 
 	],

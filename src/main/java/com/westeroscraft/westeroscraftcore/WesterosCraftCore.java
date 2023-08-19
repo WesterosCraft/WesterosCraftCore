@@ -265,6 +265,7 @@ public class WesterosCraftCore {
 		public static final ForgeConfigSpec.BooleanValue disableVineGrowFade;
 		public static final ForgeConfigSpec.BooleanValue vineSurviveAny;
 		public static final ForgeConfigSpec.BooleanValue snowLayerSurviveAny;
+		public static final ForgeConfigSpec.BooleanValue blockItemFrameChanges;
 		public static final ForgeConfigSpec.ConfigValue<List<? extends String>> autoRestoreDoors;
 		public static final ForgeConfigSpec.IntValue autoRestoreTime;
 		public static final ForgeConfigSpec.BooleanValue autoRestoreAllDoors;
@@ -306,6 +307,7 @@ public class WesterosCraftCore {
 			vineSurviveAny = BUILDER.comment("Allow vine survive on any surface").define("vineSurviveAny", true);
 			snowLayerSurviveAny = BUILDER.comment("Allow snow layer survive on any surface").define("snowLayerSurviveAny", true);
 			disableFarmStomping = BUILDER.comment("Disable farmland stomping").define("disableFarmStomping", true);
+			blockItemFrameChanges = BUILDER.comment("Prevent item frame interaction outside of creative mode").define("blockItemFrameChanges", true);
 			BUILDER.pop();
 			BUILDER.push("autoRestore");
             autoRestoreDoors = BUILDER.comment("Which door blocks to auto-restore open state (when changed by non-creative mode players)").defineList("autoRestoreDoors", 
