@@ -27,7 +27,8 @@
 		"MixinFoodData",
 		"MixinFarmBlock",
 		"MixinWitherSkullBlock",
-		"MixinItemFrame"
+		"MixinItemFrame",
+		"MixinHangingEntity"
 	],
 	"client": [ 
 	],
