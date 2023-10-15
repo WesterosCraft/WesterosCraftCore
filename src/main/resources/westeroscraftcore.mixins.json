@@ -28,7 +28,8 @@
 		"MixinFarmBlock",
 		"MixinWitherSkullBlock",
 		"MixinItemFrame",
-		"MixinHangingEntity"
+		"MixinHangingEntity",
+		"MixinLiquidBlock"
 	],
 	"client": [ 
 	],
