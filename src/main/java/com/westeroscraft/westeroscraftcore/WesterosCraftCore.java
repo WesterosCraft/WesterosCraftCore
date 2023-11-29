@@ -267,6 +267,7 @@ public class WesterosCraftCore {
 		public static final ForgeConfigSpec.BooleanValue snowLayerSurviveAny;
 		public static final ForgeConfigSpec.BooleanValue blockHangingItemChanges;		
 		public static final ForgeConfigSpec.BooleanValue disableFluidTicking;
+		public static final ForgeConfigSpec.BooleanValue disableFallingBlocks;
 		public static final ForgeConfigSpec.ConfigValue<List<? extends String>> autoRestoreDoors;
 		public static final ForgeConfigSpec.IntValue autoRestoreTime;
 		public static final ForgeConfigSpec.BooleanValue autoRestoreAllDoors;
@@ -310,6 +311,7 @@ public class WesterosCraftCore {
 			disableFarmStomping = BUILDER.comment("Disable farmland stomping").define("disableFarmStomping", true);
 			blockHangingItemChanges = BUILDER.comment("Prevent item frame, picture interaction outside of creative mode").define("blockHangingItemChanges", true);
 			disableFluidTicking = BUILDER.comment("Disable fluid ticking").define("disableFluidTicking", true);
+			disableFallingBlocks = BUILDER.comment("Disable falling blocks").define("disableFallingBlocks", true);
 			BUILDER.pop();
 			BUILDER.push("autoRestore");
             autoRestoreDoors = BUILDER.comment("Which door blocks to auto-restore open state (when changed by non-creative mode players)").defineList("autoRestoreDoors", 

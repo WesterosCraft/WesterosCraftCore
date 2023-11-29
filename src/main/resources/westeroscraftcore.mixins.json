@@ -29,7 +29,8 @@
 		"MixinWitherSkullBlock",
 		"MixinItemFrame",
 		"MixinHangingEntity",
-		"MixinLiquidBlock"
+		"MixinLiquidBlock",
+		"MixinFallingBlock"
 	],
 	"client": [ 
 	],
