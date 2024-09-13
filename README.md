@@ -1,36 +1,27 @@
-# WesterosCraftCore
 
-WesterosCraftCore is a custom Forge mod that handles various requirements for the [WesterosCraft](https://westeroscraft.com) server
+Installation information
+=======
 
-## Features
+This template repository can be directly cloned to get you started with a new
+mod. Simply create a new repository cloned from this one, by following the
+instructions at [github](https://docs.github.com/en/repositories/creating-and-managing-repositories/creating-a-repository-from-a-template).
 
-- debugLog = "Debug logging"
-- disableIceMelt = "Disable ice melting"
-- disableSnowMelt = "Disable snow melting"
-- disableLeafFade = "Disable leaf fading"
-- disableGrassFadeSpread = "Disable grass fade/spread"
-- disableBambooFadeSpread = "Disable bamboo fade/spread"
-- bambooSurviveAny = "Allow bamboo survive on any surface"
-- disableCropGrowFade = "Disable crop grow/fade"
-- cropSurviveAny = "Allow crop survive on any surface"
-- disableCactusGrowFade = "Disable cactus grow/fade"
-- cactusSurviveAny = "Allow cactus survive on any surface"
-- disablePlantGrowFade = "Disable plant grow/fade"
-- plantSurviveAny = "Allow plant survive on any surface"
-- disableMushroomGrowFade = "Disable mushroom grow/fade"
-- mushroomSurviveAny = "Allow mushroom survive on any surface"
-- disableNetherWartGrowFade = "Disable netherwart grow/fade"
-- disableStemGrowFade = "Disable stem grow/fade"
-- disableSugarCaneGrowFade = "Disable sugar cane grow/fade"
-- sugarCaneSurviveAny = "Allow sugar cane survive on any surface"
-- disableTNTExplode = "Disable TNT explode"
-- disableVineGrowFade = "Disable vine grow/fade"
-- vineSurviveAny = "Allow vine survive on any surface"
-- snowLayerSurviveAny = "Allow snow layer survive on any surface"
-- disableFarmStomping = "Disable farmland stomping"
-- blockHangingItemChanges = "Prevent item frame, picture interaction outside of creative mode"
-- disableFluidTicking = "Disable fluid ticking"
-- autoRestore = "Automatically restore door, gate, and trapdoor blocks to auto-restore open state (when changed by non-creative mode players)"
-- disableHunger = BUILDER.comment("Disable hunger on players").define("disableHunger", true);
-- blockWitherSpawn = "Disable hunger on players"
-- patchouliBooks = "What books should be in player inventory (non-creative mode)"
+Once you have your clone, simply open the repository in the IDE of your choice. The usual recommendation for an IDE is either IntelliJ IDEA or Eclipse.
+
+> **Note**: For Eclipse, use tasks in `Launch Group` instead of ones founds in `Java Application`. A preparation task must run before launching the game. NeoGradle uses launch groups to do these subsequently.
+
+If at any point you are missing libraries in your IDE, or you've run into problems you can
+run `gradlew --refresh-dependencies` to refresh the local cache. `gradlew clean` to reset everything 
+{this does not affect your code} and then start the process again.
+
+Mapping Names:
+============
+By default, the MDK is configured to use the official mapping names from Mojang for methods and fields 
+in the Minecraft codebase. These names are covered by a specific license. All modders should be aware of this
+license. For the latest license text, refer to the mapping file itself, or the reference copy here:
+https://github.com/NeoForged/NeoForm/blob/main/Mojang.md
+
+Additional Resources: 
+==========
+Community Documentation: https://docs.neoforged.net/  
+NeoForged Discord: https://discord.neoforged.net/

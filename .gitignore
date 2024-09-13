@@ -1,18 +1,26 @@
-/bin
-/build
-/lib
-WesterosBlocks-*.jar
+# eclipse
+bin
+*.launch
+.settings
+.metadata
 .classpath
-/eclipse
-/.gradle
-/.settings
-/run
-.DS_Store
-/*_Client.launch
-/*_Server.launch
-/Users/
+.project
+
+# idea
+out
+*.ipr
+*.iws
+*.iml
 .idea
-/.apt_generated/
-/.apt_generated_tests/
-/.project
-/.factorypath
+
+# gradle
+build
+.gradle
+
+# other
+eclipse
+run
+runs
+run-data
+
+repo
