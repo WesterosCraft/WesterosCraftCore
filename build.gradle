@@ -20,6 +20,7 @@ group = mod_group_id
 
 repositories {
     mavenLocal()
+
 }
 
 base {
@@ -97,6 +98,7 @@ dependencies {
     // And its provides the option to then use net.minecraft as the group, and one of; client, server or joined as the module name, plus the game version as version.
     // For all intends and purposes: You can treat this dependency as if it is a normal library you would use.
     implementation "net.neoforged:neoforge:${neo_version}"
+    compileOnly 'net.luckperms:api:5.4'
 
     // Example optional mod dependency with JEI
     // The JEI API is declared for compile time use, while the full JEI artifact is used at runtime
@@ -120,7 +122,7 @@ dependencies {
     // http://www.gradle.org/docs/current/userguide/artifact_dependencies_tutorial.html
     // http://www.gradle.org/docs/current/userguide/dependency_management.html
 
-    compileOnly 'net.luckperms:api:5.4'
+
 }
 
 // This block of code expands all declared replace properties in the specified resource targets.

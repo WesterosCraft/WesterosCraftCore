@@ -1,0 +1,15 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "com.westeroscraft.westeroscraftcore.mixin",
+  "compatibilityLevel": "JAVA_21",
+  "mixins": [
+    "MixinLiquidBlock",
+    "MixinFallingBlock"
+  ],
+  "client": [
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

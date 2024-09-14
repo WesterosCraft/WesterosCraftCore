@@ -130,7 +130,7 @@ public class Config {
     // a list of strings that are treated as resource locations for items
     private static final ModConfigSpec.ConfigValue<List<? extends String>> AUTO_RESTORE_DOORS = BUILDER
             .comment("Which door blocks to auto-restore open state (when changed by non-creative mode players).")
-            .defineListAllowEmpty("autoRestoreDoors", List.of(), Config::validateListName);
+            .defineListAllowEmpty("autoRestoreDoors", List.of(),null, Config::validateListName);
 
     private static final ModConfigSpec.IntValue AUTO_RESTORE_TIME = BUILDER.comment("Number of seconds before auto-restore").defineInRange("autoRestoreTime", 30, 5, 300);
 
@@ -243,12 +243,12 @@ public class Config {
         blockHangingItemChanges = BLOCK_HANGING_ITEM_CHANGES.get();
         disableFluidTicking = DISABLE_FLUID_TICKING.get();
         disableFallingBlocks = DISABLE_FALLING_BLOCKS.get();
-//      autoRestoreDoors = AUTO_RESTORE_DOORS.get();
+//        autoRestoreDoors = AUTO_RESTORE_DOORS.get();
         autoRestoreTime = AUTO_RESTORE_TIME.get();
         autoRestoreAllDoors = AUTO_RESTORE_ALL_DOORS.get();
-//      autoRestoreGates = AUTO_RESTORE_GATES.get();
+//        autoRestoreGates = AUTO_RESTORE_GATES.get();
         autoRestoreAllGates = AUTO_RESTORE_ALL_GATES.get();
-//      autoRestoreTrapdoors = AUTO_RESTORE_TRAP_DOORS.get();
+//        autoRestoreTrapdoors = AUTO_RESTORE_TRAP_DOORS.get();
         autoRestoreAllTrapdoors = AUTO_RESTORE_ALL_TRAP_DOORS.get();
         disableHunger = DISABLE_HUNGER.get();
         blockWitherSpawn = BLOCK_WITHER_SPAWN.get();
