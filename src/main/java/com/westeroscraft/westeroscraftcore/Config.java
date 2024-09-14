@@ -18,149 +18,160 @@ public class Config {
     // BLOCK BEHAVIORS
 
     private static final ModConfigSpec.BooleanValue DEBUG_LOG = BUILDER
-            .comment("Enable debug logging")
+            .translation("westeroscraftcore.configuration.debugLog").comment("Enable debug logging")
             .define("debugLog", false);
 
     private static final ModConfigSpec.BooleanValue DISABLE_ICE_MELT = BUILDER
-            .comment("Disable ice melting")
+            .translation("westeroscraftcore.configuration.disableIceMelt").comment("Disable ice melting")
             .define("disableIceMelt", true);
 
     private static final ModConfigSpec.BooleanValue DISABLE_SNOW_MELT = BUILDER
-            .comment("Disable snow melting")
+            .translation("westeroscraftcore.configuration.disableSnowMelt").comment("Disable snow melting")
             .define("disableSnowMelt", true);
 
     private static final ModConfigSpec.BooleanValue DISABLE_LEAF_FADE = BUILDER
-            .comment("Disable leaf fading")
+            .translation("westeroscraftcore.configuration.disableLeafFade").comment("Disable leaf fading")
             .define("disableLeafFade", true);
 
     private static final ModConfigSpec.BooleanValue DISABLE_GRASS_FADE_SPREAD = BUILDER
-            .comment("Disable grass fade/spread")
+            .translation("westeroscraftcore.configuration.disableGrassFadeSpread").comment("Disable grass fade/spread")
             .define("disableGrassFadeSpread", true);
 
     private static final ModConfigSpec.BooleanValue DISABLE_BAMBOO_FADE_SPREAD = BUILDER
-            .comment("Disable bamboo fade/spread")
+            .translation("westeroscraftcore.configuration.disableBambooFadeSpread").comment("Disable bamboo fade/spread")
             .define("disableBambooFadeSpread", true);
 
     private static final ModConfigSpec.BooleanValue BAMBOO_SURVIVE_ANY = BUILDER
-            .comment("Allow bamboo survive on any surface")
+            .translation("westeroscraftcore.configuration.bambooSurviveAny").comment("Allow bamboo to survive on any surface")
             .define("bambooSurviveAny", true);
 
     private static final ModConfigSpec.BooleanValue DISABLE_CROP_GROW_FADE = BUILDER
-            .comment("Disable crop grow/fade")
+            .translation("westeroscraftcore.configuration.disableCropGrowFade").comment("Disable crop grow/fade")
             .define("disableCropGrowFade", true);
 
     private static final ModConfigSpec.BooleanValue CROP_SURVIVE_ANY = BUILDER
-            .comment("Allow crop survive on any surface")
+            .translation("westeroscraftcore.configuration.cropSurviveAny").comment("Allow crops to survive on any surface")
             .define("cropSurviveAny", true);
 
     private static final ModConfigSpec.BooleanValue DISABLE_CACTUS_GROW_FADE = BUILDER
-            .comment("Disable cactus grow/fade")
+            .translation("westeroscraftcore.configuration.disableCactusGrowFade").comment("Disable cactus grow/fade")
             .define("disableCactusGrowFade", true);
 
     private static final ModConfigSpec.BooleanValue CACTUS_SURVIVE_ANY = BUILDER
-            .comment("Allow cactus survive on any surface")
+            .translation("westeroscraftcore.configuration.cactusSurviveAny").comment("Allow cactus to survive on any surface")
             .define("cactusSurviveAny", true);
 
     private static final ModConfigSpec.BooleanValue DISABLE_PLANT_GROW_FADE = BUILDER
-            .comment("Disable plant grow/fade")
+            .translation("westeroscraftcore.configuration.disablePlantGrowFade").comment("Disable plant grow/fade")
             .define("disablePlantGrowFade", true);
 
     private static final ModConfigSpec.BooleanValue PLANT_SURVIVE_ANY = BUILDER
-            .comment("Allow plants to survive on any surface")
+            .translation("westeroscraftcore.configuration.plantSurviveAny").comment("Allow plants to survive on any surface")
             .define("plantSurviveAny", true);
 
     private static final ModConfigSpec.BooleanValue DISABLE_MUSHROOM_GROW_FADE = BUILDER
-            .comment("Disable mushroom grow/fade")
+            .translation("westeroscraftcore.configuration.disableMushroomGrowFade").comment("Disable mushroom grow/fade")
             .define("disableMushroomGrowFade", true);
 
     private static final ModConfigSpec.BooleanValue MUSHROOM_SURVIVE_ANY = BUILDER
-            .comment("Allow mushrooms to survive on any surface")
+            .translation("westeroscraftcore.configuration.mushroomSurviveAny").comment("Allow mushrooms to survive on any surface")
             .define("mushroomSurviveAny", true);
 
     private static final ModConfigSpec.BooleanValue DISABLE_NETHER_WART_GROW_FADE = BUILDER
-            .comment("Disable netherwart grow/fade")
+            .translation("westeroscraftcore.configuration.disableBetherWartGrowFade").comment("Disable nether wart grow/fade")
             .define("disableBetherWartGrowFade", true);
 
     private static final ModConfigSpec.BooleanValue DISABLE_STEM_GROW_FADE = BUILDER
-            .comment("Disable stem grow/fade")
+            .translation("westeroscraftcore.configuration.disableStemGrowFade").comment("Disable stem grow/fade")
             .define("disableStemGrowFade", true);
 
     private static final ModConfigSpec.BooleanValue DISABLE_SUGAR_CANE_GROW_FADE = BUILDER
-            .comment("Disable sugar cane grow/fade")
+            .translation("westeroscraftcore.configuration.disableSugarCaneGrowFade").comment("Disable sugar cane grow/fade")
             .define("disableSugarCaneGrowFade", true);
 
     private static final ModConfigSpec.BooleanValue SUGAR_CANE_SURVIVE_ANY = BUILDER
-            .comment("Allow sugar cane survive on any surface")
+            .translation("westeroscraftcore.configuration.sugarCaneSurviveAny").comment("Allow sugar cane to survive on any surface")
             .define("sugarCaneSurviveAny", true);
 
     private static final ModConfigSpec.BooleanValue DISABLE_TNT_EXPLODE = BUILDER
-            .comment("Disable TNT explode")
+            .translation("westeroscraftcore.configuration.disableTNTExplode").comment("Disable TNT explosions")
             .define("disableTNTExplode", true);
 
     private static final ModConfigSpec.BooleanValue DISABLE_VINE_GROW_FADE = BUILDER
-            .comment("Disable vine grow/fade")
+            .translation("westeroscraftcore.configuration.disablevineGrowFade").comment("Disable vine grow/fade")
             .define("disablevineGrowFade", true);
 
     private static final ModConfigSpec.BooleanValue VINE_SURVIVE_ANY = BUILDER
-            .comment("Allow vine survive on any surface")
+            .translation("westeroscraftcore.configuration.vineSurviveAny").comment("Allow vine to survive on any surface")
             .define("vineSurviveAny", true);
 
     private static final ModConfigSpec.BooleanValue SNOW_LAYER_SURVIVE_ANY = BUILDER
-            .comment("Allow snow layer survive on any surface")
+            .translation("westeroscraftcore.configuration.snowLayerSurviveAny").comment("Allow snow layer to survive on any surface")
             .define("snowLayerSurviveAny", true);
 
     private static final ModConfigSpec.BooleanValue DISABLE_FARM_STOMPING = BUILDER
-            .comment("Disable farmland stomping")
+            .translation("westeroscraftcore.configuration.disableFarmStomping").comment("Disable farmland stomping")
             .define("disableFarmStomping", true);
 
     private static final ModConfigSpec.BooleanValue BLOCK_HANGING_ITEM_CHANGES = BUILDER
-            .comment("Prevent item frame, picture interaction outside of creative mode")
+            .translation("westeroscraftcore.configuration.blockHangingItemChanges").comment("Prevent item frame, picture interaction outside of creative mode")
             .define("blockHangingItemChanges", true);
 
     private static final ModConfigSpec.BooleanValue DISABLE_FLUID_TICKING = BUILDER
-            .comment("Disable fluid ticking")
+            .translation("westeroscraftcore.configuration.disableFluidTicking").comment("Disable fluid ticking")
             .define("disableFluidTicking", true);
 
     private static final ModConfigSpec.BooleanValue DISABLE_FALLING_BLOCKS = BUILDER
-            .comment("Disable falling blocks")
+            .translation("westeroscraftcore.configuration.disableFallingBlocks").comment("Disable falling blocks")
             .define("disableFallingBlocks", true);
 
 
     // AUTO RESTORE
     // a list of strings that are treated as resource locations for items
     private static final ModConfigSpec.ConfigValue<List<? extends String>> AUTO_RESTORE_DOORS = BUILDER
+            .translation("westeroscraftcore.configuration.autoRestoreDoors")
             .comment("Which door blocks to auto-restore open state (when changed by non-creative mode players).")
-            .defineListAllowEmpty("autoRestoreDoors", List.of(),null, Config::validateListName);
+            .defineListAllowEmpty("autoRestoreDoors", List.of(), null, Config::validateListName);
 
-    private static final ModConfigSpec.IntValue AUTO_RESTORE_TIME = BUILDER.comment("Number of seconds before auto-restore").defineInRange("autoRestoreTime", 30, 5, 300);
+    private static final ModConfigSpec.IntValue AUTO_RESTORE_TIME = BUILDER
+            .translation("westeroscraftcore.configuration.autoRestoreTime")
+            .comment("Number of seconds before auto-restore")
+            .defineInRange("autoRestoreTime", 30, 5, 300);
 
     private static final ModConfigSpec.BooleanValue AUTO_RESTORE_ALL_DOORS = BUILDER
+            .translation("westeroscraftcore.configuration.autoRestoreAllDoors")
             .comment("Auto restore all door blocks")
             .define("autoRestoreAllDoors", false);
 
     private static final ModConfigSpec.ConfigValue<List<? extends String>> AUTO_RESTORE_GATES = BUILDER
+            .translation("westeroscraftcore.configuration.autoRestoreGates")
             .comment("Which fence gate blocks to auto-restore open state (when changed by non-creative mode players)")
             .defineListAllowEmpty("autoRestoreGates", List.of(), Config::validateListName);
 
     private static final ModConfigSpec.BooleanValue AUTO_RESTORE_ALL_GATES = BUILDER
+            .translation("westeroscraftcore.configuration.autoRestoreAllGates")
             .comment("Auto restore all gate blocks")
             .define("autoRestoreAllGates", false);
 
     private static final ModConfigSpec.ConfigValue<List<? extends String>> AUTO_RESTORE_TRAP_DOORS = BUILDER
+            .translation("westeroscraftcore.configuration.autoRestoreTrapDoors")
             .comment("Auto restore all trap door blocks")
             .defineListAllowEmpty("autoRestoreTrapDoors", List.of(), Config::validateListName);
 
     private static final ModConfigSpec.BooleanValue AUTO_RESTORE_ALL_TRAP_DOORS = BUILDER
+            .translation("westeroscraftcore.configuration.autoRestoreAllTrapDoors")
             .comment("Auto restore all trap door blocks")
             .define("autoRestoreAllTrapDoors", false);
 
-    // PLAYER MODS
+// PLAYER MODS
 
     private static final ModConfigSpec.BooleanValue DISABLE_HUNGER = BUILDER
+            .translation("westeroscraftcore.configuration.disableHunger")
             .comment("Disable hunger on players")
             .define("disableHunger", true);
 
     private static final ModConfigSpec.BooleanValue BLOCK_WITHER_SPAWN = BUILDER
+            .translation("westeroscraftcore.configuration.blockWitherSpawn")
             .comment("Block Wither from spawning globally")
             .define("blockWitherSpawn", true);
 

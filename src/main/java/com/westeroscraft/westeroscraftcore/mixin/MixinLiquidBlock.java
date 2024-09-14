@@ -9,6 +9,7 @@ import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.LiquidBlock;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.material.FlowingFluid;
 import net.minecraft.world.level.material.FluidState;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -18,15 +19,18 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(LiquidBlock.class)
 public abstract class MixinLiquidBlock {
-    // This constructor is fake and never used
-    protected MixinLiquidBlock()
-    {
+    @Inject(method = "neighborChanged", at = @At("HEAD"), cancellable = true)
+    private void onNeighborChanged(BlockState state, Level level, BlockPos pos, net.minecraft.world.level.block.Block block, BlockPos fromPos, boolean isMoving, CallbackInfo ci) {
+        // Cancel the method execution, preventing liquid updates
+        ci.cancel();
     }
 
     @Inject(method = "shouldSpreadLiquid", at = @At("HEAD"), cancellable = true)
-    private void onShouldSpreadLiquid(Level level, BlockPos pos, BlockState state, CallbackInfoReturnable<Boolean> cir) {
+    private void onShouldSpreadLiquid(Level pLevel, BlockPos pPos, BlockState pState, CallbackInfoReturnable<Boolean> cir) {
+        // Cancel the method execution, preventing liquid ticks
         if (Config.disableFluidTicking) {
-            cir.setReturnValue(false);
+            WesterosCraftCore.debugLog("Cancelled fluid tick");
+           cir.setReturnValue(false);
         }
     }
 
@@ -37,18 +41,12 @@ public abstract class MixinLiquidBlock {
             ci.setReturnValue(false);
         }
     }
+
     @Inject(method = "randomTick", at = @At("HEAD"), cancellable=true)
     private void doRandomTick(BlockState pState, ServerLevel pLevel, BlockPos pPos, RandomSource pRandom, CallbackInfo ci) {
         if (Config.disableFluidTicking) {
             WesterosCraftCore.debugLog("Cancelled fluid tick");
             ci.cancel();
-        }
-    }
-    @Inject(method = "shouldSpreadLiquid", at = @At("HEAD"), cancellable=true)
-    private void doShouldSpreadLiquid(Level pLevel, BlockPos pPos, BlockState pState, CallbackInfoReturnable<Boolean> cir) {
-        if (Config.disableFluidTicking) {
-            WesterosCraftCore.debugLog("Cancelled fluid tick");
-            cir.setReturnValue(false);
         }
     }
 }

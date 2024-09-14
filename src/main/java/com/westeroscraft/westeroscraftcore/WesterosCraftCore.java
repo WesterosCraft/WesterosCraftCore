@@ -21,6 +21,8 @@ import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.neoforged.fml.event.lifecycle.FMLLoadCompleteEvent;
 import net.neoforged.fml.loading.FMLPaths;
+import net.neoforged.neoforge.client.gui.ConfigurationScreen;
+import net.neoforged.neoforge.client.gui.IConfigScreenFactory;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.RegisterCommandsEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerEvent;
@@ -136,6 +138,8 @@ public class WesterosCraftCore {
 
         modContainer.registerConfig(ModConfig.Type.COMMON, Config.SPEC,
                 MODID + "/" + MODID + ".toml");
+        // This will use NeoForge's ConfigurationScreen to display this mod's configs
+        modContainer.registerExtensionPoint(IConfigScreenFactory.class, ConfigurationScreen::new);
     }
 
     private void doClientStuff(final FMLClientSetupEvent event) {
