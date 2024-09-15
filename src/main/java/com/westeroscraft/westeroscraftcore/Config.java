@@ -21,6 +21,10 @@ public class Config {
             .translation("westeroscraftcore.configuration.debugLog").comment("Enable debug logging")
             .define("debugLog", false);
 
+    private static final ModConfigSpec.BooleanValue DEBUG_RESTORE_LOG = BUILDER
+            .translation("westeroscraftcore.configuration.debugRestoreLog").comment("Enable block restore logging")
+            .define("debugRestoreLog", false);
+
     private static final ModConfigSpec.BooleanValue DISABLE_ICE_MELT = BUILDER
             .translation("westeroscraftcore.configuration.disableIceMelt").comment("Disable ice melting")
             .define("disableIceMelt", true);
@@ -175,14 +179,10 @@ public class Config {
             .comment("Block Wither from spawning globally")
             .define("blockWitherSpawn", true);
 
-    // a list of strings that are treated as resource locations for items
-//    private static final ModConfigSpec.ConfigValue<List<? extends String>> ITEM_STRINGS = BUILDER
-//            .comment("A list of items to log on common setup.")
-//            .defineListAllowEmpty("items", List.of("minecraft:iron_ingot"), Config::validateItemName);
-
     static final ModConfigSpec SPEC = BUILDER.build();
 
     public static boolean debugLog;
+    public static boolean debugRestoreLog;
     public static boolean disableIceMelt;
     public static boolean disableSnowMelt;
     public static boolean disableLeafFade;
@@ -209,12 +209,12 @@ public class Config {
     public static boolean blockHangingItemChanges;
     public static boolean disableFluidTicking;
     public static boolean disableFallingBlocks;
-    public static List<String> autoRestoreDoors;
+    public static List<? extends String> autoRestoreDoors;
     public static int autoRestoreTime;
     public static boolean autoRestoreAllDoors;
-    public static List<String> autoRestoreGates;
+    public static List<? extends String> autoRestoreGates;
     public static boolean autoRestoreAllGates;
-    public static List<String> autoRestoreTrapdoors;
+    public static List<? extends String> autoRestoreTrapdoors;
     public static boolean autoRestoreAllTrapdoors;
     public static boolean disableHunger;
     public static boolean blockWitherSpawn;
@@ -228,6 +228,7 @@ public class Config {
     @SubscribeEvent
     static void onLoad(final ModConfigEvent event) {
         debugLog = DEBUG_LOG.get();
+        debugRestoreLog = DEBUG_RESTORE_LOG.get();
         disableIceMelt = DISABLE_ICE_MELT.get();
         disableSnowMelt = DISABLE_SNOW_MELT.get();
         disableLeafFade = DISABLE_LEAF_FADE.get();
@@ -254,12 +255,12 @@ public class Config {
         blockHangingItemChanges = BLOCK_HANGING_ITEM_CHANGES.get();
         disableFluidTicking = DISABLE_FLUID_TICKING.get();
         disableFallingBlocks = DISABLE_FALLING_BLOCKS.get();
-//        autoRestoreDoors = AUTO_RESTORE_DOORS.get();
+        autoRestoreDoors = AUTO_RESTORE_DOORS.get();
         autoRestoreTime = AUTO_RESTORE_TIME.get();
         autoRestoreAllDoors = AUTO_RESTORE_ALL_DOORS.get();
-//        autoRestoreGates = AUTO_RESTORE_GATES.get();
+        autoRestoreGates = AUTO_RESTORE_GATES.get();
         autoRestoreAllGates = AUTO_RESTORE_ALL_GATES.get();
-//        autoRestoreTrapdoors = AUTO_RESTORE_TRAP_DOORS.get();
+        autoRestoreTrapdoors = AUTO_RESTORE_TRAP_DOORS.get();
         autoRestoreAllTrapdoors = AUTO_RESTORE_ALL_TRAP_DOORS.get();
         disableHunger = DISABLE_HUNGER.get();
         blockWitherSpawn = BLOCK_WITHER_SPAWN.get();

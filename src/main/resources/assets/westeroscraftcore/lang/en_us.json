@@ -1,5 +1,6 @@
 {
   "westeroscraftcore.configuration.debugLog": "Debug log",
+  "westeroscraftcore.configuration.debugRestoreLog": "Debug restore log",
   "westeroscraftcore.configuration.disableStemGrowFade": "Disable stem grow fade",
   "westeroscraftcore.configuration.disableCropGrowFade": "Disable crop grow fade",
   "westeroscraftcore.configuration.disableGrassFadeSpread": "Disable grass fade spread",
