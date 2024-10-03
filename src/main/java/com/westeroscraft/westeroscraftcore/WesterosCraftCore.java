@@ -1,12 +1,14 @@
 package com.westeroscraft.westeroscraftcore;
 
+import com.mojang.brigadier.CommandDispatcher;
+import com.westeroscraft.westeroscraftcore.commands.NVCommand;
 import net.minecraft.CrashReport;
 import net.minecraft.ReportedException;
+import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.block.Block;
@@ -15,7 +17,6 @@ import net.minecraft.world.level.block.FenceGateBlock;
 import net.minecraft.world.level.block.TrapDoorBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.gameevent.GameEvent;
-import net.minecraft.world.phys.BlockHitResult;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.ModContainer;
@@ -62,9 +63,9 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 // The value here should match an entry in the META-INF/mods.toml file
-@Mod(WesterosCraftCore.MODID)
+@Mod(WesterosCraftCore.MOD_ID)
 public class WesterosCraftCore {
-    public static final String MODID = "westeroscraftcore";
+    public static final String MOD_ID = "westeroscraftcore";
 
     // Directly reference a log4j logger.
     public static final Logger log = LogManager.getLogger();
@@ -131,7 +132,7 @@ public class WesterosCraftCore {
 
         Path configPath = FMLPaths.CONFIGDIR.get();
 
-        modConfigPath = Paths.get(configPath.toAbsolutePath().toString(), MODID);
+        modConfigPath = Paths.get(configPath.toAbsolutePath().toString(), MOD_ID);
 
         // Create the config folder
         try {
@@ -143,7 +144,7 @@ public class WesterosCraftCore {
         }
 
         modContainer.registerConfig(ModConfig.Type.COMMON, Config.SPEC,
-                MODID + "/" + MODID + ".toml");
+                MOD_ID + "/" + MOD_ID + ".toml");
         // This will use NeoForge's ConfigurationScreen to display this mod's configs
         if (FMLEnvironment.dist.isClient()) {
             modContainer.registerExtensionPoint(IConfigScreenFactory.class, ConfigurationScreen::new);
@@ -163,19 +164,19 @@ public class WesterosCraftCore {
 //        //PWeatherCommand.register(commandDispatcher);
 //    }
 
-    private static LuckPerms luckPermsAPI = null;
-
-    @SubscribeEvent
-    public void serverStarting(ServerStartingEvent event) {
-        log.info("Register luckperms permission provider for worldedit");
-        try {
-            luckPermsAPI = LuckPermsProvider.get();
-        } catch (IllegalStateException e) {
-            // LuckPerms is not present
-            WesterosCraftCore.debugLog("LuckPerms API is not available!");
-
-        }
-    }
+//    private static LuckPerms luckPermsAPI = null;
+//
+//    @SubscribeEvent
+//    public void serverStarting(ServerStartingEvent event) {
+//        log.info("Register luckperms permission provider for worldedit");
+//        try {
+//            luckPermsAPI = LuckPermsProvider.get();
+//        } catch (IllegalStateException e) {
+//            // LuckPerms is not present
+//            WesterosCraftCore.debugLog("LuckPerms API is not available!");
+//
+//        }
+//    }
 
 
     @SubscribeEvent
@@ -245,6 +246,14 @@ public class WesterosCraftCore {
         }
     }
 
+    @SubscribeEvent
+    public void onRegisterCommandEvent(RegisterCommandsEvent event) {
+        CommandDispatcher<CommandSourceStack> commandDispatcher = event.getDispatcher();
+//        PTimeCommand.register(commandDispatcher);
+//        PWeatherCommand.register(commandDispatcher);
+        NVCommand.register(commandDispatcher);
+    }
+
     private void loadComplete(final FMLLoadCompleteEvent event) // PostRegistrationEven
     {
         List<Block> dlist = new ArrayList<Block>();
@@ -300,20 +309,20 @@ public class WesterosCraftCore {
     {
     }
 
-    @SubscribeEvent
-    public void onPlayerLoggedInEvent(PlayerEvent.PlayerLoggedInEvent event) {
-        checkPlayerGameMode(event.getEntity());
-    }
-
-    @SubscribeEvent
-    public void onPlayerRespawnEvent(PlayerEvent.PlayerRespawnEvent event) {
-        checkPlayerGameMode(event.getEntity());
-    }
-
-    @SubscribeEvent
-    public void onPlayerChangeDimension(PlayerEvent.PlayerChangedDimensionEvent event) {
-        checkPlayerGameMode(event.getEntity());
-    }
+//    @SubscribeEvent
+//    public void onPlayerLoggedInEvent(PlayerEvent.PlayerLoggedInEvent event) {
+//        checkPlayerGameMode(event.getEntity());
+//    }
+//
+//    @SubscribeEvent
+//    public void onPlayerRespawnEvent(PlayerEvent.PlayerRespawnEvent event) {
+//        checkPlayerGameMode(event.getEntity());
+//    }
+//
+//    @SubscribeEvent
+//    public void onPlayerChangeDimension(PlayerEvent.PlayerChangedDimensionEvent event) {
+//        checkPlayerGameMode(event.getEntity());
+//    }
 //
 //    private static LuckPerms api;
 //
@@ -323,19 +332,19 @@ public class WesterosCraftCore {
 //    }
 //
 //    // Check game mode of player
-    private void checkPlayerGameMode(Player player) {
-        if (player instanceof ServerPlayer sp && luckPermsAPI != null) {
-            // If not in adventure mode, see if supposed to be forced
-            if (sp.gameMode.getGameModeForPlayer() != GameType.ADVENTURE) {
-                CachedPermissionData perms = luckPermsAPI.getPlayerAdapter(ServerPlayer.class).getPermissionData(sp);
-                Tristate rslt = perms.checkPermission("westeroscraftcore.forceadventuremode");
-                if (rslt == Tristate.TRUE) {    // If set to true for player
-                    log.info("Player " + sp.getDisplayName().getString() + " to be forced to ADVENTURE mode");
-                    sp.gameMode.changeGameModeForPlayer(GameType.ADVENTURE);
-                }
-            }
-        }
-    }
+//    private void checkPlayerGameMode(Player player) {
+//        if (player instanceof ServerPlayer sp && luckPermsAPI != null) {
+//            // If not in adventure mode, see if supposed to be forced
+//            if (sp.gameMode.getGameModeForPlayer() != GameType.ADVENTURE) {
+//                CachedPermissionData perms = luckPermsAPI.getPlayerAdapter(ServerPlayer.class).getPermissionData(sp);
+//                Tristate rslt = perms.checkPermission("westeroscraftcore.forceadventuremode");
+//                if (rslt == Tristate.TRUE) {    // If set to true for player
+//                    log.info("Player " + sp.getDisplayName().getString() + " to be forced to ADVENTURE mode");
+//                    sp.gameMode.changeGameModeForPlayer(GameType.ADVENTURE);
+//                }
+//            }
+//        }
+//    }
 
     public static void debugLog(String msg) {
         if (Config.debugLog) {
