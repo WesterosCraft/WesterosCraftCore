@@ -6,6 +6,7 @@ import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
+import net.neoforged.neoforge.network.PacketDistributor;
 
 public class PWeatherCommand {
     public static void register(CommandDispatcher<CommandSourceStack> source) {
@@ -29,6 +30,7 @@ public class PWeatherCommand {
             ServerPlayer player = (ServerPlayer) source.getEntity();
             // Send relative of zero for reset
 //            WesterosCraftCore.simpleChannel.send(new PWeatherMessage(PWeatherMessage.WeatherCond.RESET), PacketDistributor.PLAYER.with(player));
+            PacketDistributor.sendToPlayer(player, new PWeatherMessage(PWeatherMessage.WeatherCond.RESET));
             source.sendSuccess(()-> Component.literal("Reset player weather to server weather"), true);
         } else {
             source.sendFailure(Component.literal("Cannot be used by console"));
@@ -40,6 +42,7 @@ public class PWeatherCommand {
         if (source.getEntity() instanceof ServerPlayer) {
             ServerPlayer player = (ServerPlayer) source.getEntity();
             // Send relative of zero for reset
+            PacketDistributor.sendToPlayer(player, new PWeatherMessage(cond));
 //            WesterosBlocks.simpleChannel.send(new PWeatherMessage(cond), PacketDistributor.PLAYER.with(player));
             source.sendSuccess(()->Component.literal("Set player weather to " + cond), true);
         } else {

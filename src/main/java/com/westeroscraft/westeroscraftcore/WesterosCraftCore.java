@@ -2,6 +2,10 @@ package com.westeroscraft.westeroscraftcore;
 
 import com.mojang.brigadier.CommandDispatcher;
 import com.westeroscraft.westeroscraftcore.commands.NVCommand;
+import com.westeroscraft.westeroscraftcore.commands.PWeatherCommand;
+import com.westeroscraft.westeroscraftcore.network.ClientPayloadHandler;
+import com.westeroscraft.westeroscraftcore.network.ModNetworking;
+import com.westeroscraft.westeroscraftcore.network.message.PWeatherMessage;
 import net.minecraft.CrashReport;
 import net.minecraft.ReportedException;
 import net.minecraft.commands.CommandSourceStack;
@@ -36,6 +40,11 @@ import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
 import net.neoforged.neoforge.event.server.ServerStartingEvent;
 import net.neoforged.neoforge.event.server.ServerStoppingEvent;
 import net.neoforged.neoforge.event.tick.ServerTickEvent;
+import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
+import net.neoforged.neoforge.network.handling.IPayloadContext;
+import net.neoforged.neoforge.network.handling.IPayloadHandler;
+import net.neoforged.neoforge.network.registration.HandlerThread;
+import net.neoforged.neoforge.network.registration.PayloadRegistrar;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -69,9 +78,6 @@ public class WesterosCraftCore {
 
     // Directly reference a log4j logger.
     public static final Logger log = LogManager.getLogger();
-
-    // Says where the client and server 'proxy' code is loaded.
-//    public static Proxy proxy = DistExecutor.safeRunForDist(() -> ClientProxy::new, () -> Proxy::new);
 
     public static Path modConfigPath;
 
@@ -125,7 +131,7 @@ public class WesterosCraftCore {
         modEventBus.addListener(this::loadComplete);
         // Register the commonSetup method for modloading
         modEventBus.addListener(this::commonSetup);
-
+        modEventBus.addListener(ModNetworking::init);
 
         // Register ourselves for server and other game events we are interested in
         NeoForge.EVENT_BUS.register(this);
@@ -157,13 +163,6 @@ public class WesterosCraftCore {
         log.info("Got game settings {}", event.description());
     }
 
-//    @SubscribeEvent
-//    public void onRegisterCommandEvent(RegisterCommandsEvent event) {
-//        //CommandDispatcher<CommandSourceStack> commandDispatcher = event.getDispatcher();
-//        //PTimeCommand.register(commandDispatcher);
-//        //PWeatherCommand.register(commandDispatcher);
-//    }
-
 //    private static LuckPerms luckPermsAPI = null;
 //
 //    @SubscribeEvent
@@ -177,7 +176,6 @@ public class WesterosCraftCore {
 //
 //        }
 //    }
-
 
     @SubscribeEvent
     public void onRightClickBlock(PlayerInteractEvent.RightClickBlock event) {
@@ -250,7 +248,7 @@ public class WesterosCraftCore {
     public void onRegisterCommandEvent(RegisterCommandsEvent event) {
         CommandDispatcher<CommandSourceStack> commandDispatcher = event.getDispatcher();
 //        PTimeCommand.register(commandDispatcher);
-//        PWeatherCommand.register(commandDispatcher);
+        PWeatherCommand.register(commandDispatcher);
         NVCommand.register(commandDispatcher);
     }
 

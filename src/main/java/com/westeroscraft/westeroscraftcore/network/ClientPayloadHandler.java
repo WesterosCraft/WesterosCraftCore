@@ -4,21 +4,16 @@ import com.westeroscraft.westeroscraftcore.WesterosCraftCore;
 import com.westeroscraft.westeroscraftcore.network.message.PWeatherMessage;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.level.Level;
-import net.neoforged.fml.LogicalSide;
-import net.neoforged.neoforge.common.util.LogicalSidedProvider;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
-
-import java.util.Optional;
 
 public class ClientPayloadHandler {
 
-    public static void handleDataOnNetwork(final PWeatherMessage data, final IPayloadContext context) {
+    public static void onPWeatherMessageRecieved(final PWeatherMessage data, final IPayloadContext context) {
         // Enqueue processing to happen on client thread next tick
         context.enqueueWork(() -> {
                     processPWeatherMessage(context.player().getCommandSenderWorld(), data);
                 })
                 .exceptionally(e -> {
-
                     context.disconnect(Component.literal("Networking failed"));
                     return null;
                 });
@@ -33,8 +28,8 @@ public class ClientPayloadHandler {
     // It spawns a number of Particle particles at the target location within a
     // short range around the target location
     private static void processPWeatherMessage(Level worldClient, PWeatherMessage message) {
-        WesterosCraftCore.log.info("Got PWeatherMessage: " + message.weather);
-        weatherCond = message.weather;
+        WesterosCraftCore.log.info("Got PWeatherMessage: " + message.weather());
+        weatherCond = message.weather();
         switch (weatherCond) {
             case RESET:
                 worldClient.getLevelData().setRaining(savedRain);
