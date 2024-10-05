@@ -15,7 +15,7 @@ public class ModNetworking {
         registrar.playToClient(
                 PWeatherMessage.TYPE,
                 PWeatherMessage.STREAM_CODEC,
-                ClientPayloadHandler::onPWeatherMessageRecieved
+                ClientPayloadHandler::onPWeatherMessageReceived
         );
     }
 }

@@ -31,7 +31,6 @@ public record PWeatherMessage(WeatherCond weather) implements CustomPacketPayloa
                 .enumCodec(WeatherCond.class);
     }
 
-    ;
     public static final WeatherCond[] weathercondlist = WeatherCond.values();
 
     public void encode(FriendlyByteBuf buf) {
@@ -52,6 +51,4 @@ public record PWeatherMessage(WeatherCond weather) implements CustomPacketPayloa
     public String toString() {
         return "PWeatherMessage[" + weather + "]";
     }
-
-
 }

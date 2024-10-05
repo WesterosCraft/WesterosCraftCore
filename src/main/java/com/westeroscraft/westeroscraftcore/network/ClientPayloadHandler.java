@@ -8,15 +8,21 @@ import net.neoforged.neoforge.network.handling.IPayloadContext;
 
 public class ClientPayloadHandler {
 
-    public static void onPWeatherMessageRecieved(final PWeatherMessage data, final IPayloadContext context) {
+    public static void onPWeatherMessageReceived(final PWeatherMessage data, final IPayloadContext context) {
+
+        Level playerWorld = context.player().getCommandSenderWorld();
+
+        if (!playerWorld.isClientSide) {
+            WesterosCraftCore.log.warn("PWeatherMessage context could not provide a ClientWorld.");
+            return;
+        }
         // Enqueue processing to happen on client thread next tick
         context.enqueueWork(() -> {
-                    processPWeatherMessage(context.player().getCommandSenderWorld(), data);
-                })
-                .exceptionally(e -> {
-                    context.disconnect(Component.literal("Networking failed"));
-                    return null;
-                });
+            processPWeatherMessage(context.player().getCommandSenderWorld(), data);
+        }).exceptionally(e -> {
+            context.disconnect(Component.literal("Networking failed"));
+            return null;
+        });
     }
 
 
@@ -24,6 +30,7 @@ public class ClientPayloadHandler {
     public static boolean savedRain = false;
     public static float savedRainLevel = 0.0F;
     public static float savedThunderLevel = 0.0F;
+
     // This message is called from the Client thread.
     // It spawns a number of Particle particles at the target location within a
     // short range around the target location
