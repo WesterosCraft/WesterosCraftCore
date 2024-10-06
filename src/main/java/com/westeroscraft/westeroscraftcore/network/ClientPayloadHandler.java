@@ -1,15 +1,46 @@
 package com.westeroscraft.westeroscraftcore.network;
 
 import com.westeroscraft.westeroscraftcore.WesterosCraftCore;
+import com.westeroscraft.westeroscraftcore.network.message.PTimeMessage;
 import com.westeroscraft.westeroscraftcore.network.message.PWeatherMessage;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.level.Level;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 
+
 public class ClientPayloadHandler {
+    /**
+     * Called when PTimeMessage received.
+     * CALLED BY THE NETWORK THREAD, NOT THE CLIENT THREAD.
+     */
+    public static void onPTimeMessageReceived(final PTimeMessage message, IPayloadContext context) {
+        Level playerWorld = context.player().getCommandSenderWorld();
 
+        if (!playerWorld.isClientSide) {
+            WesterosCraftCore.log.warn("PTimeMessage context could not provide a ClientWorld.");
+            return;
+        }
+        // Enqueue processing to happen on client thread next tick
+        context.enqueueWork(() -> processPTimeMessage(playerWorld, message));
+    }
+
+    public static boolean ptimeRelative = true;
+    public static int ptimeOffset = 0;
+
+    // This message is called from the Client thread.
+    // It spawns a number of Particle particles at the target location within a
+    // short range around the target location
+    private static void processPTimeMessage(Level worldClient, PTimeMessage message) {
+//        WesterosCraftCore.log.info("Got PTimeMessage: relative=" + message.relative + ", time_off=" + message.time_off);
+//        ptimeRelative = relative;
+//        ptimeOffset = time_off;
+    }
+
+    /**
+     * Called when PWeatherMessage received.
+     * CALLED BY THE NETWORK THREAD, NOT THE CLIENT THREAD.
+     */
     public static void onPWeatherMessageReceived(final PWeatherMessage data, final IPayloadContext context) {
-
         Level playerWorld = context.player().getCommandSenderWorld();
 
         if (!playerWorld.isClientSide) {
@@ -18,7 +49,7 @@ public class ClientPayloadHandler {
         }
         // Enqueue processing to happen on client thread next tick
         context.enqueueWork(() -> {
-            processPWeatherMessage(context.player().getCommandSenderWorld(), data);
+            processPWeatherMessage(playerWorld, data);
         }).exceptionally(e -> {
             context.disconnect(Component.literal("Networking failed"));
             return null;

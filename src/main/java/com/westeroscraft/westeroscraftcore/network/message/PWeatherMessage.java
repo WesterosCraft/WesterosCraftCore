@@ -18,11 +18,10 @@ public record PWeatherMessage(WeatherCond weather) implements CustomPacketPayloa
     }
 
     public static final StreamCodec<RegistryFriendlyByteBuf, PWeatherMessage> STREAM_CODEC = StreamCodec.composite(
-            WeatherCond.STREAM_CODEC, PWeatherMessage::weather,
+            WeatherCond.STREAM_CODEC,
+            PWeatherMessage::weather,
             PWeatherMessage::new
     );
-
-    public static int PWEATHER_MSGID = 0x02;
 
     public enum WeatherCond {
         RESET, CLEAR, RAIN, THUNDER;

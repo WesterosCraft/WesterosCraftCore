@@ -2,6 +2,7 @@ package com.westeroscraft.westeroscraftcore;
 
 import com.mojang.brigadier.CommandDispatcher;
 import com.westeroscraft.westeroscraftcore.commands.NVCommand;
+import com.westeroscraft.westeroscraftcore.commands.PTimeCommand;
 import com.westeroscraft.westeroscraftcore.commands.PWeatherCommand;
 import com.westeroscraft.westeroscraftcore.network.ClientPayloadHandler;
 import com.westeroscraft.westeroscraftcore.network.ModNetworking;
@@ -247,7 +248,7 @@ public class WesterosCraftCore {
     @SubscribeEvent
     public void onRegisterCommandEvent(RegisterCommandsEvent event) {
         CommandDispatcher<CommandSourceStack> commandDispatcher = event.getDispatcher();
-//        PTimeCommand.register(commandDispatcher);
+        PTimeCommand.register(commandDispatcher);
         PWeatherCommand.register(commandDispatcher);
         NVCommand.register(commandDispatcher);
     }

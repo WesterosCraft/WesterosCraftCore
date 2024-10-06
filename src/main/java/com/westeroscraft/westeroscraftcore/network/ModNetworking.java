@@ -1,6 +1,7 @@
 package com.westeroscraft.westeroscraftcore.network;
 
 import com.westeroscraft.westeroscraftcore.WesterosCraftCore;
+import com.westeroscraft.westeroscraftcore.network.message.PTimeMessage;
 import com.westeroscraft.westeroscraftcore.network.message.PWeatherMessage;
 import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
 import net.neoforged.neoforge.network.registration.HandlerThread;
@@ -16,6 +17,11 @@ public class ModNetworking {
                 PWeatherMessage.TYPE,
                 PWeatherMessage.STREAM_CODEC,
                 ClientPayloadHandler::onPWeatherMessageReceived
+        );
+        registrar.playToClient(
+                PTimeMessage.TYPE,
+                PTimeMessage.STREAM_CODEC,
+                ClientPayloadHandler::onPTimeMessageReceived
         );
     }
 }

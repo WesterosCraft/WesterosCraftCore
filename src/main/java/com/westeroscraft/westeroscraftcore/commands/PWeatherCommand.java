@@ -26,8 +26,7 @@ public class PWeatherCommand {
         );
     }
     public static int resetWeather(CommandSourceStack source) {
-        if (source.getEntity() instanceof ServerPlayer) {
-            ServerPlayer player = (ServerPlayer) source.getEntity();
+        if (source.getEntity() instanceof ServerPlayer player) {
             PacketDistributor.sendToPlayer(player, new PWeatherMessage(PWeatherMessage.WeatherCond.RESET));
             source.sendSuccess(()-> Component.literal("Reset player weather to server weather"), true);
         } else {
@@ -37,8 +36,7 @@ public class PWeatherCommand {
     }
 
     public static int setWeather(CommandSourceStack source, PWeatherMessage.WeatherCond cond) {
-        if (source.getEntity() instanceof ServerPlayer) {
-            ServerPlayer player = (ServerPlayer) source.getEntity();
+        if (source.getEntity() instanceof ServerPlayer player) {
             // Send relative of zero for reset
             PacketDistributor.sendToPlayer(player, new PWeatherMessage(cond));
             source.sendSuccess(()->Component.literal("Set player weather to " + cond), true);
