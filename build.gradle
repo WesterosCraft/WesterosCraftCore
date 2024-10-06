@@ -15,11 +15,11 @@ tasks.named('wrapper', Wrapper).configure {
     distributionType = Wrapper.DistributionType.BIN
 }
 
-version = mod_version
+version = "1.21.1-${mod_version}.${System.getenv().BUILD_NUMBER ?: 'Dev'}"
 group = mod_group_id
 
 repositories {
-    mavenLocal()
+    mavenCentral()
 }
 
 base {
